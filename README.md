@@ -26,6 +26,7 @@ Now, you might be wondering _when_ should you or a user do this to properly add 
 - VSCode devcontainer
 
   - If using vscode, it will prompt to auto build and attach to the Docker file
+    - Warning: building the container takes a few minutes! (TODO: fix this)
   - Auto adds the suggested extensions / settings
   - Use the debugger for breakpoints! (and easy restart of the main.py process)
 
@@ -48,6 +49,7 @@ cp rabbitmq_config.json.example rabbitmq_config.json
 Once inside the container and rabbitmq set
 
 ```bash
+# or instead of running manually, hit the debug play button in vscode!
 cd ./Payload_Type/sliverapi/
 python3 main.py
 ```
