@@ -6,38 +6,29 @@ from mythic_container.MythicRPC import *
 
 class BasicPythonAgent(PayloadType):
     name = "sliver"
-    file_extension = ""
     author = "Spencer Adolph"
+    note = """This payload connects to sliver."""
     supported_os = [SupportedOS("sliver")]
+    file_extension = ""
     wrapper = False
     wrapped_payloads = []
-    note = """This payload connects to sliver."""
     supports_dynamic_loading = False
     c2_profiles = []
     mythic_encrypts = False
     translation_container = None # "myPythonTranslation"
-    build_parameters = [
-        BuildParameter(
-            name="CONFIGTEXT",
-            description="Sliver Operator Config (paste string)",
-            parameter_type=BuildParameterType.String,
-            default_value="Paste Here"
-        ),
-        # BuildParameter(
-        #     name="CONFIGFILE",
-        #     description="Sliver Operator Config (select file)",
-        #     parameter_type=BuildParameterType.File,
-        # )
-    ]
     agent_type = "service"
-    agent_path = pathlib.Path(".") / "sliver"
+    agent_path = pathlib.Path(".") / "sliverapi"
     agent_icon_path = agent_path / "agent_functions" / "sliver.svg"
     agent_code_path = agent_path / "agent_code"
-
-    build_steps = [
-        BuildStep(step_name="Gathering Files", step_description="Making sure all commands have backing files on disk"),
-        BuildStep(step_name="Configuring", step_description="Stamping in configuration values")
+    build_steps = []
+    build_parameters = [
+        BuildParameter(
+            name="CONFIGFILE",
+            description="Sliver Operator Config (select file)",
+            parameter_type=BuildParameterType.File,
+        )
     ]
+
 
     async def build(self) -> BuildResponse:
         # this function gets called to create an instance of your payload
