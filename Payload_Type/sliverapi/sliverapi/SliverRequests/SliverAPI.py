@@ -4,6 +4,10 @@ from sliver import SliverClientConfig, SliverClient
 
 
 async def create_sliver_client(taskData: PTTaskMessageAllData):
+    # TODO: should this configfile somehow be cached so we aren't always using rpc to pull it?
+    # Should this be a class who's attributes then are updated with the config?
+    # Requires better python skills...
+
     # TODO: cleaner way of grabbing this since its the only parameter?
     configfile = None
     for buildParam in taskData.BuildParameters:

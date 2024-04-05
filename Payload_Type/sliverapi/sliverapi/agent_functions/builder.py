@@ -5,7 +5,7 @@ from mythic_container.MythicRPC import *
 
 
 class BasicPythonAgent(PayloadType):
-    name = "sliver"
+    name = "slivermeta"
     author = "Spencer Adolph"
     note = """This payload connects to sliver."""
     supported_os = [SupportedOS("sliver")]
@@ -37,8 +37,8 @@ class BasicPythonAgent(PayloadType):
         create_callback = await SendMythicRPCCallbackCreate(MythicRPCCallbackCreateMessage(
             PayloadUUID=self.uuid,
             C2ProfileName="",
-            User="Sliver",
-            Host="Sliver",
+            User="SliverMeta",
+            Host="SliverMeta",
             Ip=ip,
             IntegrityLevel=3,
         ))
