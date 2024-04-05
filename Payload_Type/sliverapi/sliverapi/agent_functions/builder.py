@@ -4,10 +4,10 @@ from mythic_container.MythicCommandBase import *
 from mythic_container.MythicRPC import *
 
 
-class BasicPythonAgent(PayloadType):
-    name = "slivermeta"
+class SliverApi(PayloadType):
+    name = "sliverapi"
     author = "Spencer Adolph"
-    note = """This payload connects to sliver."""
+    note = """This payload connects to sliver to run meta commands."""
     supported_os = [SupportedOS("sliver")]
     file_extension = ""
     wrapper = False
@@ -37,8 +37,8 @@ class BasicPythonAgent(PayloadType):
         create_callback = await SendMythicRPCCallbackCreate(MythicRPCCallbackCreateMessage(
             PayloadUUID=self.uuid,
             C2ProfileName="",
-            User="SliverMeta",
-            Host="SliverMeta",
+            User="SliverAPI",
+            Host="SliverAPI",
             Ip=ip,
             IntegrityLevel=3,
         ))
