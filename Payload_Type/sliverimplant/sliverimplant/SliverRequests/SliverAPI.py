@@ -121,3 +121,31 @@ async def netstat(taskData: PTTaskMessageAllData):
         netstat_results = await interact.netstat(tcp=True, udp=True, ipv4=True, ipv6=True, listening=True)
         
     return netstat_results
+
+async def cd(taskData: PTTaskMessageAllData):
+    client = await create_sliver_client(taskData)
+
+    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
+    if (callback_extra_info['type'] == 'beacon'):
+        interact = await client.interact_beacon(taskData.Payload.UUID)
+        cd_task = await interact.cd(remote_path=taskData.args.get_arg('path'))
+        cd_results = await cd_task
+    else:
+        interact = await client.interact_session(taskData.Payload.UUID)
+        cd_results = await interact.cd(remote_path=taskData.args.get_arg('path'))
+        
+    return cd_results
+
+async def pwd(taskData: PTTaskMessageAllData):
+    client = await create_sliver_client(taskData)
+
+    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
+    if (callback_extra_info['type'] == 'beacon'):
+        interact = await client.interact_beacon(taskData.Payload.UUID)
+        pwd_task = await interact.pwd()
+        pwd_results = await pwd_task
+    else:
+        interact = await client.interact_session(taskData.Payload.UUID)
+        pwd_results = await interact.pwd()
+
+    return pwd_results

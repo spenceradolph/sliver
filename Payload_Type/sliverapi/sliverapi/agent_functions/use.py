@@ -77,7 +77,7 @@ class Use(CommandBase):
                     description=f"sliver {'beaconing' if isBeacon else 'interactive'} implant for {sliver_id}",
                     build_parameters=[],
                     c2_profiles=[],
-                    commands=['ifconfig', 'download', 'upload', 'ls', 'ps', 'netstat', 'cat']
+                    commands=['ifconfig', 'download', 'upload', 'ls', 'ps', 'netstat', 'cat', 'cd', 'pwd']
                 ),
             )
             await SendMythicRPCPayloadCreateFromScratch(new_payload)
