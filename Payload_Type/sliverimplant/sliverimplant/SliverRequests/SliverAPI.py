@@ -149,3 +149,22 @@ async def pwd(taskData: PTTaskMessageAllData):
         pwd_results = await interact.pwd()
 
     return pwd_results
+
+async def execute(taskData: PTTaskMessageAllData):
+    client = await create_sliver_client(taskData)
+
+    exe = taskData.args.get_arg('exe')
+    args = taskData.args.get_arg('args')
+    output = taskData.args.get_arg('output')
+
+    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
+    if (callback_extra_info['type'] == 'beacon'):
+        interact = await client.interact_beacon(taskData.Payload.UUID)
+        execute_task = await interact.execute(exe=exe, args=args, output=output)
+        execute_results = await execute_task
+    else:
+        interact = await client.interact_session(taskData.Payload.UUID)
+        execute_results = await interact.execute(exe=exe, args=args, output=output)
+
+    return execute_results
+
