@@ -74,7 +74,7 @@ class Use(CommandBase):
                     description=f"sliver implant for {sliver_id}",
                     build_parameters=[],
                     c2_profiles=[],
-                    # commands=[]
+                    commands=['ifconfig']
                 ),
             )
             await SendMythicRPCPayloadCreateFromScratch(new_payload)
@@ -86,6 +86,7 @@ class Use(CommandBase):
             IntegrityLevel=3,
             Host=beacon_info.Hostname,
             User=beacon_info.Username,
+            Ip=beacon_info.RemoteAddress.split(':')[0],
             ExtraInfo=taskData.BuildParameters[0].Value # TODO: if buildparams changes, then this won't work anymore (could make it more resilient)
         ))
 

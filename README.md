@@ -14,6 +14,7 @@ A SliverImplant callback is instantiated when tasking a `use -id <sliver_implant
 - Better integration with all Mythic features
   - especially UI improvements with results / data
   - interactive commands
+  - documentation-payload
 - Build sliver implant payloads through Mythic
 - sliver 3rd party integrations?
 - Sync to just create all callbacks / auto create+track them
