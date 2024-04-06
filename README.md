@@ -1,10 +1,30 @@
 # sliver
 
-This is a Mythic agent for interacting with [Sliver](https://sliver.sh/) C2 framework.
+This is a set of Mythic agents for interacting with [Sliver](https://sliver.sh/) C2 framework.
 
-This doesn't build a payload, but instead generates a "callback" within Mythic that allows you to interact with Sliver's API. This requires you to generate an [operator configuration file](https://sliver.sh/docs?name=Multi-player+Mode).
+- `sliverapi`: for interacting with the sliver server (ie: start listeners, list sessions...etc)
+- `sliverimplant`: for interacting with a sliver implant (ie: ps, netstat...etc)
 
-This config file is the only build parameter. Once built, a callback will appear that can be tasked to interact with Sliver.
+The SliverAPI payload doesn't build anything, but instead generates a "callback" within Mythic that allows you to interact with Sliver's API. This requires you to generate an [operator configuration file](https://sliver.sh/docs?name=Multi-player+Mode). This config file is the only build parameter, and once built, a callback will immediately appear.
+
+A SliverImplant callback is instantiated when tasking a `use -id <sliver_implant_id>` from within the SliverApi callback. 
+
+## Future Plans / Ideas
+
+- Better integration with all Mythic features
+  - especially UI improvements with results / data
+  - interactive commands
+- Build sliver implant payloads through Mythic
+- sliver 3rd party integrations?
+- Sync to just create all callbacks / auto create+track them
+  - since sliver can still be used normally without mythic
+- Ability to run the sliver server within mythic?
+
+### Fixes / TODOs
+
+- make Dockerfile build faster / fix grpc error
+- parity with all commands in sliver
+- write a blog post about experience / video demo?
 
 ## How to install an agent in this format within Mythic
 
