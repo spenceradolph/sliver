@@ -5,12 +5,31 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Mythic Python Debugger",
+            "name": "SliverApi",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/Payload_Type/sliverapi/main.py",
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}/Payload_Type/sliverapi"
+            "cwd": "${workspaceFolder}/Payload_Type/sliverapi",
+            "consoleTitle": "SliverApi"
+        },
+        {
+            "name": "SliverImplant",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/Payload_Type/sliverimplant/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/Payload_Type/sliverimplant",
+            "consoleTitle": "SliverImplant"
+        },
+    ],
+    "compounds": [
+        {
+            "name": "SliverApi && SliverImplant",
+            "configurations": [
+                "SliverApi",
+                "SliverImplant"
+            ]
         }
     ]
 }

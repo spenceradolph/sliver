@@ -24,5 +24,19 @@ class SliverImplant(PayloadType):
     build_parameters = []
 
     async def build(self) -> BuildResponse:
-        # TODO: ability to build payloads from Mythic instead of using 'generate' command in sliver (or with sliver meta api)
-        pass
+        # TODO: call sliver to build the implant
+
+        # implant_config = client_pb2.ImplantConfig(
+        #     IsBeacon=True,
+        #     Name="sliver-pytest-1",
+        #     GOARCH="amd64",
+        #     GOOS="linux",
+        #     Format=client_pb2.OutputFormat.EXECUTABLE,
+        #     ObfuscateSymbols=False,
+        #     C2=[client_pb2.ImplantC2(Priority=0, URL="http://localhost:80")],
+        # )
+
+        # implant = await client.generate_implant(implant_config)
+
+        resp = BuildResponse(status=BuildStatus.Success)
+        return resp

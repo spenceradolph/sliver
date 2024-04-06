@@ -1,5 +1,5 @@
 import mythic_container
 import asyncio
-import sliverapi
+import sliverimplant
 
 mythic_container.mythic_service.start_and_run_forever()
