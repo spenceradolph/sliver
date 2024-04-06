@@ -105,3 +105,19 @@ async def ps(taskData: PTTaskMessageAllData):
         ps_results = await interact.ps()
         
     return ps_results
+
+async def netstat(taskData: PTTaskMessageAllData):
+    client = await create_sliver_client(taskData)
+
+    # TODO: get args from task
+
+    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
+    if (callback_extra_info['type'] == 'beacon'):
+        interact = await client.interact_beacon(taskData.Payload.UUID)
+        netstat_task = await interact.netstat(tcp=True, udp=True, ipv4=True, ipv6=True, listening=True)
+        netstat_results = await netstat_task
+    else:
+        interact = await client.interact_session(taskData.Payload.UUID)
+        netstat_results = await interact.netstat(tcp=True, udp=True, ipv4=True, ipv6=True, listening=True)
+        
+    return netstat_results
