@@ -1,15 +1,16 @@
 from mythic_container.MythicCommandBase import PTTaskMessageAllData
 from mythic_container.MythicRPC import SendMythicRPCFileGetContent, MythicRPCFileGetContentMessage
 from sliver import SliverClientConfig, SliverClient
-
-# TODO: combine this functionality with the sliverapi Payload Type
+import json
+import gzip
 
 async def create_sliver_client(taskData: PTTaskMessageAllData):
     # TODO: should this configfile somehow be cached so we aren't always using rpc to pull it?
     # Should this be a class who's attributes then are updated with the config?
     # Requires better python skills...
 
-    configfile = taskData.Callback.ExtraInfo
+    extraInfoObj = json.loads(taskData.Callback.ExtraInfo)
+    configfile = extraInfoObj['slivercfg_fileid']
 
     filecontent = await SendMythicRPCFileGetContent(MythicRPCFileGetContentMessage(
         AgentFileId=configfile
@@ -19,5 +20,61 @@ async def create_sliver_client(taskData: PTTaskMessageAllData):
 
     config = SliverClientConfig.parse_config(filecontent.Content)
     client = SliverClient(config)
-    await client.connect() # Most functionality requires connecting first
+    await client.connect()
+    
     return client
+
+async def ifconfig(taskData: PTTaskMessageAllData):
+    client = await create_sliver_client(taskData)
+
+    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
+    if (callback_extra_info['type'] == 'beacon'):
+        interact = await client.interact_beacon(taskData.Payload.UUID)
+        ifconfig_task = await interact.ifconfig()
+        ifconfig_results = await ifconfig_task
+    else:
+        interact = await client.interact_session(taskData.Payload.UUID)
+        ifconfig_results = await interact.ifconfig()
+
+    return ifconfig_results
+
+async def download(taskData: PTTaskMessageAllData):
+    client = await create_sliver_client(taskData)
+
+    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
+    if (callback_extra_info['type'] == 'beacon'):
+        interact = await client.interact_beacon(taskData.Payload.UUID)
+        download_task = await interact.download(remote_path=taskData.args.get_arg('path'))
+        download_results = await download_task
+    else:
+        interact = await client.interact_session(taskData.Payload.UUID)
+        download_results = await interact.download(remote_path=taskData.args.get_arg('path'))
+
+    plaintext = gzip.decompress(download_results.Data)
+
+    return plaintext
+
+async def upload(taskData: PTTaskMessageAllData):
+    client = await create_sliver_client(taskData)
+
+    filestuff = await SendMythicRPCFileGetContent(MythicRPCFileGetContentMessage(
+        AgentFileId=taskData.args.get_arg('uuid')
+    ))
+
+    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
+    if (callback_extra_info['type'] == 'beacon'):
+        interact = await client.interact_beacon(taskData.Payload.UUID)
+        upload_task = await interact.upload(
+            remote_path=taskData.args.get_arg('path'),
+            data=filestuff.Content
+        )
+        upload_results = await upload_task
+    else:
+        interact = await client.interact_session(taskData.Payload.UUID)
+        upload_results = await interact.upload(
+            remote_path=taskData.args.get_arg('path'),
+            data=filestuff.Content
+        )
+
+    return upload_results
+

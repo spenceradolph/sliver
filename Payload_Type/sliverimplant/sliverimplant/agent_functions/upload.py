@@ -38,22 +38,13 @@ class Upload(CommandBase):
     attackmapping = []
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
-        filestuff = await SendMythicRPCFileGetContent(MythicRPCFileGetContentMessage(
-            AgentFileId=taskData.args.get_arg('uuid')
-        ))
-        client = await SliverAPI.create_sliver_client(taskData)
-        interact = await client.interact_beacon(taskData.Payload.UUID)
-        upload_task = await interact.upload(
-            remote_path=taskData.args.get_arg('path'),
-            data=filestuff.Content
-        )
-        await upload_task
+        upload_results = await SliverAPI.upload(taskData)
 
         # TODO: other error handling
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
-            Response="upload success?".encode("UTF8"),
+            Response="upload success!".encode("UTF8"),
         ))
 
         response = MythicCommandBase.PTTaskCreateTaskingMessageResponse(

@@ -1,6 +1,6 @@
 # TODO: learn how to python, this is probably not right
 from ..SliverRequests import SliverAPI
-import gzip
+
 
 from mythic_container.MythicCommandBase import *
 from mythic_container.MythicRPC import *
@@ -33,13 +33,7 @@ class Download(CommandBase):
     attackmapping = []
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
-        client = await SliverAPI.create_sliver_client(taskData)
-        
-        interact = await client.interact_beacon(taskData.Payload.UUID)
-        download_task = await interact.download(remote_path=taskData.args.get_arg('path'))
-        download = await download_task
-
-        plaintext = gzip.decompress(download.Data)
+        plaintext = await SliverAPI.download(taskData)
 
         results = await SendMythicRPCFileCreate(MythicRPCFileCreateMessage(
             TaskID=taskData.Task.ID,

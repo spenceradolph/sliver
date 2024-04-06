@@ -1,5 +1,6 @@
 # TODO: learn how to python, this is probably not right
 from ..SliverRequests import SliverAPI
+import json
 
 from mythic_container.MythicCommandBase import *
 from mythic_container.MythicRPC import *
@@ -25,7 +26,6 @@ class UseArguments(TaskArguments):
 class Use(CommandBase):
     cmd = "use"
     needs_admin = False
-    # TODO: what is the intended use of help_cmd
     help_cmd = "use"
     description = "Use an implant."
     version = 1
@@ -40,8 +40,9 @@ class Use(CommandBase):
         # TODO: determine if session or beacon uuid
         sliver_id = taskData.args.get_arg('id')
         beacon_info = await client.beacon_by_id(sliver_id)
+        session_info = await client.session_by_id(sliver_id)
 
-        if (not beacon_info):
+        if (not beacon_info and not session_info):
             response = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
                 TaskID=taskData.Task.ID,
                 Success=False,
@@ -51,7 +52,9 @@ class Use(CommandBase):
                 # DisplayParams="id not found in sliver!"
             )
             return response
-
+        
+        isBeacon = beacon_info is not None
+        implant_info = beacon_info or session_info
 
         # check if payload already exists, if so, skip to creating the callback
         search = await SendMythicRPCPayloadSearch(MythicRPCPayloadSearchMessage(
@@ -70,24 +73,31 @@ class Use(CommandBase):
                 PayloadConfiguration=MythicRPCPayloadConfiguration(
                     payload_type="sliverimplant",
                     uuid=sliver_id,
-                    selected_os=sliver_os_table[beacon_info.OS],                 
-                    description=f"sliver implant for {sliver_id}",
+                    selected_os=sliver_os_table[implant_info.OS],                 
+                    description=f"sliver {'beaconing' if isBeacon else 'interactive'} implant for {sliver_id}",
                     build_parameters=[],
                     c2_profiles=[],
-                    commands=['ifconfig']
+                    commands=['ifconfig', 'download', 'upload']
                 ),
             )
             await SendMythicRPCPayloadCreateFromScratch(new_payload)
 
         # create the callback
+        # TODO: Probably a way to document this 'Type' for intellisense
+        extraInfo = json.dumps({
+            # TODO: if buildparams changes, then this won't work anymore (could make it more resilient)
+            "slivercfg_fileid": taskData.BuildParameters[0].Value,
+            "type": 'beacon' if isBeacon else 'session'
+        })
         await SendMythicRPCCallbackCreate(MythicRPCCallbackCreateMessage(
             PayloadUUID=sliver_id,
             C2ProfileName="",
             IntegrityLevel=3,
-            Host=beacon_info.Hostname,
-            User=beacon_info.Username,
-            Ip=beacon_info.RemoteAddress.split(':')[0],
-            ExtraInfo=taskData.BuildParameters[0].Value # TODO: if buildparams changes, then this won't work anymore (could make it more resilient)
+            Host=implant_info.Hostname,
+            User=implant_info.Username,
+            Ip=implant_info.RemoteAddress.split(':')[0],
+            ExtraInfo=extraInfo,
+            PID=implant_info.PID
         ))
 
         # TODO: error handling

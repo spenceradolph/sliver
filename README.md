@@ -74,3 +74,11 @@ Once inside the container and rabbitmq set
 cd ./Payload_Type/sliverapi/
 python3 main.py
 ```
+
+### Current Work TODOs
+
+- difference between session and beacon
+  - different ways of calling the sliver-py api
+- refactor sliver api into 1 place?
+- exit command (for the callbacks?)
+  - sliver can close the sessions / exit interactive?

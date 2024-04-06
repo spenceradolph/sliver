@@ -25,21 +25,13 @@ class Ifconfig(CommandBase):
     attackmapping = []
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
-        client = await SliverAPI.create_sliver_client(taskData)
-
-        # await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
-        #     TaskID=taskData.Task.ID,
-        #     Response="waiting on beacon probably".encode("UTF8"),
-        # ))
+        # TODO: send some message about tasking status?
         
-        # TODO: figure out custom command that accomplishes this
-        interact = await client.interact_beacon(taskData.Payload.UUID)
-        ifconfig_task = await interact.ifconfig()
-        ifconfig = await ifconfig_task
+        ifconfig_results = await SliverAPI.ifconfig(taskData)
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
-            Response=f"{str(ifconfig)}".encode("UTF8"),
+            Response=f"{str(ifconfig_results)}".encode("UTF8"),
         ))
 
         # TODO: error handling
