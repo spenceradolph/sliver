@@ -125,14 +125,16 @@ async def netstat(taskData: PTTaskMessageAllData):
 async def cd(taskData: PTTaskMessageAllData):
     client = await create_sliver_client(taskData)
 
+    remote_path = taskData.args.get_arg('path')
+
     callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
     if (callback_extra_info['type'] == 'beacon'):
         interact = await client.interact_beacon(taskData.Payload.UUID)
-        cd_task = await interact.cd(remote_path=taskData.args.get_arg('path'))
+        cd_task = await interact.cd(remote_path=remote_path)
         cd_results = await cd_task
     else:
         interact = await client.interact_session(taskData.Payload.UUID)
-        cd_results = await interact.cd(remote_path=taskData.args.get_arg('path'))
+        cd_results = await interact.cd(remote_path=remote_path)
         
     return cd_results
 
@@ -168,3 +170,17 @@ async def execute(taskData: PTTaskMessageAllData):
 
     return execute_results
 
+async def mkdir(taskData: PTTaskMessageAllData):
+    client = await create_sliver_client(taskData)
+
+    remote_path = taskData.args.get_arg('path')
+
+    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
+    if (callback_extra_info['type'] == 'beacon'):
+        interact = await client.interact_beacon(taskData.Payload.UUID)
+        mkdir_results = await (await interact.mkdir(remote_path=remote_path))
+    else:
+        interact = await client.interact_session(taskData.Payload.UUID)
+        mkdir_results = await interact.mkdir(remote_path=remote_path)
+
+    return mkdir_results

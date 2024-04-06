@@ -77,8 +77,8 @@ python3 main.py
 
 ### Current Work TODOs
 
-- difference between session and beacon
-  - different ways of calling the sliver-py api
 - refactor sliver api into 1 place?
+  - rename SliverRequests folder / libraries
 - exit command (for the callbacks?)
   - sliver can close the sessions / exit interactive?
+  - what is gained by exiting the callback but not on the sliver side
