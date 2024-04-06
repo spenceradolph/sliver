@@ -78,3 +78,30 @@ async def upload(taskData: PTTaskMessageAllData):
 
     return upload_results
 
+async def ls(taskData: PTTaskMessageAllData):
+    client = await create_sliver_client(taskData)
+
+    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
+    if (callback_extra_info['type'] == 'beacon'):
+        interact = await client.interact_beacon(taskData.Payload.UUID)
+        ls_task = await interact.ls()
+        ls_results = await ls_task
+    else:
+        interact = await client.interact_session(taskData.Payload.UUID)
+        ls_results = await interact.ls()
+        
+    return ls_results
+
+async def ps(taskData: PTTaskMessageAllData):
+    client = await create_sliver_client(taskData)
+
+    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
+    if (callback_extra_info['type'] == 'beacon'):
+        interact = await client.interact_beacon(taskData.Payload.UUID)
+        ps_task = await interact.ps()
+        ps_results = await ps_task
+    else:
+        interact = await client.interact_session(taskData.Payload.UUID)
+        ps_results = await interact.ps()
+        
+    return ps_results
