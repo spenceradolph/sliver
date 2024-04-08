@@ -243,7 +243,7 @@ async def shell(taskData: PTTaskMessageAllData):
     req = sliver_pb2.ShellReq() # line 474 in client.ts
     req.TunnelID = tunnelId
     req.Path = "/bin/bash"
-    req.EnablePTY = True
+    req.EnablePTY = False
     shell_result = await _rpc.Shell(request(req)) # line 479 in client.ts
 
     # TODO: not sure yet how to handle gRPC multimultiStreamCallable for stdin/stdout
@@ -261,19 +261,29 @@ async def shell(taskData: PTTaskMessageAllData):
     data = sliver_pb2.TunnelData()
     data.TunnelID = tunnelId
     data.SessionID = interact.session_id
-    data.Data = b'yes | while read -r line; do echo "$line"; sleep 1; done &\n'
+    data.Data = b'yes | while read -r line; do echo "$line"; sleep 1; done &\n' # something to constantly spit output?
     await _tunnelStream.write(data)
 
     # This seemed like a dead end, the only 'event' pulled contained TunnelID and SessionID
     # while True:
-    #     async for event in _tunnelStream:
-    #         print(event)
+    # async for event in _tunnelStream:
+    #     print(event)
 
+    # this appears to be only events with the client (operator joined / left...)
     # while True:
     #     async for event in client.events():
     #         print(event)
 
+    # nothing
+    # while True:
+    # async for event in _rpc.Events(sliver_pb2.Tunnel()):
+    #     print(event)
 
+    # details = _tunnelStream.details()
+
+    # while True:
+    #     async for msg in _tunnelStream._fetch_stream_responses():
+    #         print(msg)
 
     # attempt to read from the tunnel (line 484 client.ts)
     # instead of .on('data'), manally calling read to (hopefully) confirm it works
