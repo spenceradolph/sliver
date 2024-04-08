@@ -2,6 +2,7 @@ import pathlib
 from mythic_container.PayloadBuilder import *
 from mythic_container.MythicCommandBase import *
 from mythic_container.MythicRPC import *
+from sliver import SliverClientConfig, SliverClient
 
 
 class SliverImplant(PayloadType):
@@ -21,13 +22,32 @@ class SliverImplant(PayloadType):
     agent_icon_path = agent_path / "agent_functions" / "sliver.svg"
     agent_code_path = agent_path / "agent_code"
     build_steps = []
-    build_parameters = []
+    build_parameters = [
+        BuildParameter(
+            name="name",
+            description="name",
+            parameter_type=BuildParameterType.String,
+        ),
+    ]
 
     async def build(self) -> BuildResponse:
-        # TODO: call sliver to build the implant
+        # Just hope they have this setup already, and not have multiple
+        sliverapi_payloads = await SendMythicRPCPayloadSearch(MythicRPCPayloadSearchMessage(
+            PayloadTypes=['sliverapi'],
+            
+        ))
+        sliver_config_uuid = sliverapi_payloads.Payloads[0].BuildParameters[0].Value
+        filecontent = await SendMythicRPCFileGetContent(MythicRPCFileGetContentMessage(
+            AgentFileId=sliver_config_uuid
+        ))
+        config = SliverClientConfig.parse_config(filecontent.Content)
+        client = SliverClient(config)
+        await client.connect()
+
+        # self.build_parameters
 
         # implant_config = client_pb2.ImplantConfig(
-        #     IsBeacon=True,
+        #     IsBeacon=self.build_parameters[''],
         #     Name="sliver-pytest-1",
         #     GOARCH="amd64",
         #     GOOS="linux",

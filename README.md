@@ -82,3 +82,6 @@ python3 main.py
 - exit command (for the callbacks?)
   - sliver can close the sessions / exit interactive?
   - what is gained by exiting the callback but not on the sliver side
+
+Example go code for interactive pty
+https://github.com/MythicAgents/poseidon/blob/master/Payload_Type/poseidon/poseidon/agentfunctions/pty.go

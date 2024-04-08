@@ -20,7 +20,8 @@
             "program": "${workspaceFolder}/Payload_Type/sliverimplant/main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}/Payload_Type/sliverimplant",
-            "consoleTitle": "SliverImplant"
+            "consoleTitle": "SliverImplant",
+            "justMyCode": false
         },
     ],
     "compounds": [
