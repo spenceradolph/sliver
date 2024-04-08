@@ -1,6 +1,9 @@
 from mythic_container.MythicCommandBase import PTTaskMessageAllData
 from mythic_container.MythicRPC import SendMythicRPCFileGetContent, MythicRPCFileGetContentMessage
 from sliver import SliverClientConfig, SliverClient, client_pb2, sliver_pb2
+from mythic_container.MythicCommandBase import *
+from mythic_container.MythicRPC import *
+from mythic_container.PayloadBuilder import *
 import json
 import gzip
 import time
@@ -247,10 +250,44 @@ async def shell(taskData: PTTaskMessageAllData):
     # want to read and write to it? (how to confirm its working?)
     # client.ts uses _tunnelStream.on('data', (TunnelData) => callback)
     # and uses this._tunnelStream.write(data); (is this where the request_iterator comes in?)
-    
+
+    # attempt to replicate writing (line 504 client.ts)
+    data = sliver_pb2.TunnelData()
+    data.TunnelID = tunnelId
+    data.SessionID = interact.session_id
+    data.Data = b'sleep 500 &\n'
+    await _tunnelStream.write(data)
+
+    data = sliver_pb2.TunnelData()
+    data.TunnelID = tunnelId
+    data.SessionID = interact.session_id
+    data.Data = b'yes | while read -r line; do echo "$line"; sleep 1; done &\n'
+    await _tunnelStream.write(data)
+
+    # This seemed like a dead end, the only 'event' pulled contained TunnelID and SessionID
+    # while True:
+    #     async for event in _tunnelStream:
+    #         print(event)
+
+    # while True:
+    #     async for event in client.events():
+    #         print(event)
+
+
+
+    # attempt to read from the tunnel (line 484 client.ts)
+    # instead of .on('data'), manally calling read to (hopefully) confirm it works
+    # response_message = await _tunnelStream.read()
+    # print(response_message)
+
     # finally
     # line 511 / 514 of client.ts
     closeReq = client_pb2.CloseTunnelReq(TunnelID=tunnel.TunnelID)
     await interact._stub.CloseTunnel(interact._request(closeReq))
+
+    # This will probably be how stdout gets sent to mythic
+    # await MythicRPC().execute("create_output", task_id=taskData.Task.ID, output='hello there!\n')
+
+    # TODO: how will stdin be sent from mythic to the tunnel?
 
     return shell_result, tunnel
