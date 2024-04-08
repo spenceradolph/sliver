@@ -199,84 +199,58 @@ async def pwd(taskData: PTTaskMessageAllData):
         pwd_results = await pwd_task
     else:
         interact = await client.interact_session(taskData.Payload.UUID)
+        # already exposed in the client
         # pwd_results = await interact.pwd()
 
+        _rpc = interact._stub
+        request = interact._request
+
         # Example of using the rpc calls more directly?
-        pwd = sliver_pb2.PwdReq()
-        pwd_results = await interact._stub.Pwd(interact._request(pwd))
+        req = sliver_pb2.PwdReq()
+        pwd_results = await _rpc.Pwd(request(req))
 
     return pwd_results
 
 async def shell(taskData: PTTaskMessageAllData):
+    task_info = json.loads(taskData.Callback.ExtraInfo)
+    if (task_info['type'] == 'beacon'):
+        return None # this only applies to sessions, not beacons
+
     client = await create_sliver_client(taskData)
-
-    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
-    if (callback_extra_info['type'] == 'beacon'):
-        # TODO: better error handling
-        return None
-
-    # this only applies to sessions, not beacons
     interact = await client.interact_session(taskData.Payload.UUID)
+    # line 36 of shell.ts example, entering client.ts shell() line 458
     
-    _rpc = interact._stub
-    request = interact._request
+    # typed as rpcpb.SliverRPCClient in TS 
+    # but here is 'SliverRPCStub' type (python)
+    # (confirmed in pwd code which is working)
+    _rpc = interact._stub # doing this to match the this._rpc in the client.ts
+    request = interact._request # helper function?
+    _tunnelStream = _rpc.TunnelData() # line 622 in client.ts (in the connect() function)
     
+    tunnel = sliver_pb2.Tunnel(SessionID=interact.session_id) # line 461/462 client.ts
+    rpcTunnel = await _rpc.CreateTunnel(tunnel) # line 464
 
-    tunnel = sliver_pb2.Tunnel(SessionID=interact.session_id)
-    rpcTunnel = await _rpc.CreateTunnel(tunnel)
-    # rpcTunnel = await client_pb2.CreateTunnel(tunnel)
-    # time.sleep(.5)
+    tunnelId = rpcTunnel.TunnelID # line 468 in client.ts
+    tunnelData = sliver_pb2.TunnelData() # line 469 in client.ts
+    tunnelData.TunnelID = tunnelId
+    tunnelData.SessionID = interact.session_id
+    await _tunnelStream.write(tunnelData) # bind tunnel? (line 519 client.ts and tunnels.go#L128)
 
-    tunnelId = rpcTunnel.TunnelID
-
-    req = sliver_pb2.ShellReq()
+    # inside the callback after writing to the tunnel
+    req = sliver_pb2.ShellReq() # line 474 in client.ts
     req.TunnelID = tunnelId
     req.Path = "/bin/bash"
     req.EnablePTY = True
-    shell_result = await _rpc.Shell(request(req))
-    time.sleep(.5)
+    shell_result = await _rpc.Shell(request(req)) # line 479 in client.ts
 
-    # def request_iterator():
-    #     data = sliver_pb2.TunnelData()
-    #     data.TunnelID = tunnelId
-    #     data.SessionID = interact.session_id
-    #     data.Data = b'id\n'
-    #     while True:
-    #         yield data
-
-    _tunnelStream = _rpc.TunnelData()
-
-    tunnelData = sliver_pb2.TunnelData()
-    tunnelData.TunnelID = tunnelId
-    tunnelData.SessionID = interact.session_id
-    await _tunnelStream.write(tunnelData) # bind?
-    time.sleep(.5)
-
-    testTunnelData = sliver_pb2.TunnelData()
-    testTunnelData.TunnelID = tunnelId
-    testTunnelData.SessionID = interact.session_id
-    testTunnelData.Data = b'id\n'
-    await _tunnelStream.write(tunnelData)
-
-    returnTunnelData = await _tunnelStream.read()
-
-
-    print(returnTunnelData)
+    # TODO: not sure yet how to handle gRPC multimultiStreamCallable for stdin/stdout
+    # want to read and write to it? (how to confirm its working?)
+    # client.ts uses _tunnelStream.on('data', (TunnelData) => callback)
+    # and uses this._tunnelStream.write(data); (is this where the request_iterator comes in?)
     
-
-    # async for data in client.on('data'):
-    #     print(data)
-
-    # def request_iterator():
-    #     while True:
-    #         user_input = input('stdin')
-    #         yield user_input
-            
-
-    # TODO: figure out how to loop through input / output with tunnel
-    # interact._stub.TunnelData(request_iterator=request_iterator)
-
-    # closeReq = client_pb2.CloseTunnelReq(TunnelID=tunnel.TunnelID)
-    # result = await interact._stub.CloseTunnel(interact._request(closeReq))
+    # finally
+    # line 511 / 514 of client.ts
+    closeReq = client_pb2.CloseTunnelReq(TunnelID=tunnel.TunnelID)
+    await interact._stub.CloseTunnel(interact._request(closeReq))
 
     return shell_result, tunnel
