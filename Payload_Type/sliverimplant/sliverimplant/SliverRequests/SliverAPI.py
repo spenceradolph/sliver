@@ -1,3 +1,4 @@
+import asyncio
 from mythic_container.MythicCommandBase import PTTaskMessageAllData
 from mythic_container.MythicRPC import SendMythicRPCFileGetContent, MythicRPCFileGetContentMessage
 from sliver import SliverClientConfig, SliverClient, client_pb2, sliver_pb2
@@ -7,6 +8,7 @@ from mythic_container.PayloadBuilder import *
 import json
 import gzip
 import time
+import concurrent.futures
 
 async def create_sliver_client(taskData: PTTaskMessageAllData):
     # TODO: should this configfile somehow be cached so we aren't always using rpc to pull it?
@@ -203,14 +205,14 @@ async def pwd(taskData: PTTaskMessageAllData):
     else:
         interact = await client.interact_session(taskData.Payload.UUID)
         # already exposed in the client
-        # pwd_results = await interact.pwd()
+        pwd_results = await interact.pwd()
 
-        _rpc = interact._stub
-        request = interact._request
+        # _rpc = interact._stub
+        # request = interact._request
 
-        # Example of using the rpc calls more directly?
-        req = sliver_pb2.PwdReq()
-        pwd_results = await _rpc.Pwd(request(req))
+        # # Example of using the rpc calls more directly?
+        # req = sliver_pb2.PwdReq()
+        # pwd_results = await _rpc.Pwd(request(req))
 
     return pwd_results
 
@@ -239,65 +241,58 @@ async def shell(taskData: PTTaskMessageAllData):
     tunnelData.SessionID = interact.session_id
     await _tunnelStream.write(tunnelData) # bind tunnel? (line 519 client.ts and tunnels.go#L128)
 
-    # inside the callback after writing to the tunnel
     req = sliver_pb2.ShellReq() # line 474 in client.ts
     req.TunnelID = tunnelId
     req.Path = "/bin/bash"
-    req.EnablePTY = False
+    req.EnablePTY = True
     shell_result = await _rpc.Shell(request(req)) # line 479 in client.ts
 
-    # TODO: not sure yet how to handle gRPC multimultiStreamCallable for stdin/stdout
-    # want to read and write to it? (how to confirm its working?)
-    # client.ts uses _tunnelStream.on('data', (TunnelData) => callback)
-    # and uses this._tunnelStream.write(data); (is this where the request_iterator comes in?)
+    async def read_server_data():
+        async for data in _tunnelStream:
+            if not data:
+                print('EOF')
+                await MythicRPC().execute("create_output", task_id=taskData.Task.ID, output='EOF\n')
+                break
+            print(data.Data)
+            await MythicRPC().execute("create_output", task_id=taskData.Task.ID, output=f'{data.Data}\n')
 
-    # attempt to replicate writing (line 504 client.ts)
-    data = sliver_pb2.TunnelData()
-    data.TunnelID = tunnelId
-    data.SessionID = interact.session_id
-    data.Data = b'sleep 500 &\n'
-    await _tunnelStream.write(data)
+    async def write_client_data():
+        while True:
+            # TODO: get this from mythic
+            user_input = input("'exit', 'ctrl-c', otherwise cmd: ")
+            if user_input.lower() == 'exit':
+                break
+            
+            if user_input == 'ctrl-c':
+                data = sliver_pb2.TunnelData()
+                data.TunnelID = tunnelId
+                data.SessionID = interact.session_id
+                data.Data = bytes([3])
+                await _tunnelStream.write(data)
+                continue
 
-    data = sliver_pb2.TunnelData()
-    data.TunnelID = tunnelId
-    data.SessionID = interact.session_id
-    data.Data = b'yes | while read -r line; do echo "$line"; sleep 1; done &\n' # something to constantly spit output?
-    await _tunnelStream.write(data)
+            # interpret as a command to send (with \n to press enter?)
+            data = sliver_pb2.TunnelData()
+            data.TunnelID = tunnelId
+            data.SessionID = interact.session_id
+            data.Data = f"{user_input}\n".encode('utf-8')
+            await _tunnelStream.write(data)
 
-    # This seemed like a dead end, the only 'event' pulled contained TunnelID and SessionID
-    # while True:
-    # async for event in _tunnelStream:
-    #     print(event)
+    # read_task = asyncio.create_task(read_server_data())
+    # write_task = asyncio.create_task(write_client_data())
+    # await asyncio.gather(read_task, write_task)
 
-    # this appears to be only events with the client (operator joined / left...)
-    # while True:
-    #     async for event in client.events():
-    #         print(event)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        future1 = executor.submit(read_server_data)
+        # future2 = executor.submit(write_client_data)
 
-    # nothing
-    # while True:
-    # async for event in _rpc.Events(sliver_pb2.Tunnel()):
-    #     print(event)
+        concurrent.futures.wait([future1])
 
-    # details = _tunnelStream.details()
-
-    # while True:
-    #     async for msg in _tunnelStream._fetch_stream_responses():
-    #         print(msg)
-
-    # attempt to read from the tunnel (line 484 client.ts)
-    # instead of .on('data'), manally calling read to (hopefully) confirm it works
-    # response_message = await _tunnelStream.read()
-    # print(response_message)
+    await write_client_data()
 
     # finally
     # line 511 / 514 of client.ts
     closeReq = client_pb2.CloseTunnelReq(TunnelID=tunnel.TunnelID)
     await interact._stub.CloseTunnel(interact._request(closeReq))
 
-    # This will probably be how stdout gets sent to mythic
-    # await MythicRPC().execute("create_output", task_id=taskData.Task.ID, output='hello there!\n')
-
-    # TODO: how will stdin be sent from mythic to the tunnel?
-
-    return shell_result, tunnel
+    return tunnel

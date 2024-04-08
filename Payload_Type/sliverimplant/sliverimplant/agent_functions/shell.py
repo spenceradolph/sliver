@@ -28,7 +28,7 @@ class Shell(CommandBase):
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
         # TODO: send some message about tasking status?
         
-        shell_results, tunnel = await SliverAPI.shell(taskData)
+        tunnel = await SliverAPI.shell(taskData)
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
