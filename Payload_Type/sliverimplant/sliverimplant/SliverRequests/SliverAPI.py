@@ -249,15 +249,17 @@ async def shell(taskData: PTTaskMessageAllData):
 
     async def read_server_data():
         async for data in _tunnelStream:
-            if not data:
-                print('EOF')
-                await MythicRPC().execute("create_output", task_id=taskData.Task.ID, output='EOF\n')
-                break
+            # await asyncio.sleep(1)
+            # if data.Data == b'EOF':
+            #     print('EOF')
+            #     await MythicRPC().execute("create_output", task_id=taskData.Task.ID, output='EOF\n')
+            #     break
             print(data.Data)
             await MythicRPC().execute("create_output", task_id=taskData.Task.ID, output=f'{data.Data}\n')
 
     async def write_client_data():
         while True:
+            await asyncio.sleep(1)
             # TODO: get this from mythic
             user_input = input("'exit', 'ctrl-c', otherwise cmd: ")
             if user_input.lower() == 'exit':
@@ -278,9 +280,10 @@ async def shell(taskData: PTTaskMessageAllData):
             data.Data = f"{user_input}\n".encode('utf-8')
             await _tunnelStream.write(data)
 
-    t = threading.Thread(target=read_server_data, args=())
-    t.start()
-    await write_client_data()
+    task_read = asyncio.create_task(read_server_data())
+    task_write = asyncio.create_task(write_client_data())
+        # only await the write, since that will eventuallly finish adn read won't
+    await task_write
 
     # finally
     # line 511 / 514 of client.ts
