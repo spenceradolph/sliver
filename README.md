@@ -13,7 +13,7 @@ A SliverImplant callback is instantiated when tasking a `use -id <sliver_implant
 
 - Better integration with all Mythic features
   - especially UI improvements with results / data
-  - interactive commands
+  - interactive commands (sorta working)
   - documentation-payload
 - Build sliver implant payloads through Mythic
 - sliver 3rd party integrations?
@@ -26,6 +26,10 @@ A SliverImplant callback is instantiated when tasking a `use -id <sliver_implant
 - make Dockerfile build faster / fix grpc error
 - parity with all commands in sliver
 - write a blog post about experience / video demo?
+
+### Potential Bugs
+
+- shell command spawns an asyncio task for reading from the tunnel, but does this ever exit?
 
 ## How to install an agent in this format within Mythic
 
@@ -82,6 +86,3 @@ python3 main.py
 - exit command (for the callbacks?)
   - sliver can close the sessions / exit interactive?
   - what is gained by exiting the callback but not on the sliver side
-
-Example go code for interactive pty
-https://github.com/MythicAgents/poseidon/blob/master/Payload_Type/poseidon/poseidon/agentfunctions/pty.go
