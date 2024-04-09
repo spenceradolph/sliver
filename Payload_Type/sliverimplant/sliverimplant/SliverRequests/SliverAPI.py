@@ -10,6 +10,14 @@ import gzip
 import concurrent.futures
 import threading
 
+import mythic_container.MythicCommandBase
+from mythic_container.LoggingBase import *
+import logging
+from mythic_container.MythicGoRPC import *
+
+# TODO: make this better
+global_dict = {}
+
 async def create_sliver_client(taskData: PTTaskMessageAllData):
     # TODO: should this configfile somehow be cached so we aren't always using rpc to pull it?
     # Should this be a class who's attributes then are updated with the config?
@@ -231,6 +239,9 @@ async def shell(taskData: PTTaskMessageAllData):
     _rpc = interact._stub # doing this to match the this._rpc in the client.ts
     request = interact._request # helper function?
     _tunnelStream = _rpc.TunnelData() # line 622 in client.ts (in the connect() function)
+
+    global_dict['interact'] = interact 
+    global_dict['tunnel_stream'] = _tunnelStream
     
     tunnel = sliver_pb2.Tunnel(SessionID=interact.session_id) # line 461/462 client.ts
     rpcTunnel = await _rpc.CreateTunnel(tunnel) # line 464
@@ -241,6 +252,9 @@ async def shell(taskData: PTTaskMessageAllData):
     tunnelData.SessionID = interact.session_id
     await _tunnelStream.write(tunnelData) # bind tunnel? (line 519 client.ts and tunnels.go#L128)
 
+    global_dict['tunnel_id'] = tunnelId
+    global_dict['session_id'] = interact.session_id
+
     req = sliver_pb2.ShellReq() # line 474 in client.ts
     req.TunnelID = tunnelId
     req.Path = "/bin/bash"
@@ -249,12 +263,6 @@ async def shell(taskData: PTTaskMessageAllData):
 
     async def read_server_data():
         async for data in _tunnelStream:
-            # await asyncio.sleep(1)
-            # if data.Data == b'EOF':
-            #     print('EOF')
-            #     await MythicRPC().execute("create_output", task_id=taskData.Task.ID, output='EOF\n')
-            #     break
-            print(data.Data)
             await MythicRPC().execute("create_output", task_id=taskData.Task.ID, output=f'{data.Data}\n')
 
     async def write_client_data():
@@ -281,13 +289,52 @@ async def shell(taskData: PTTaskMessageAllData):
             await _tunnelStream.write(data)
 
     task_read = asyncio.create_task(read_server_data())
-    task_write = asyncio.create_task(write_client_data())
+    # task_write = asyncio.create_task(write_client_data())
         # only await the write, since that will eventuallly finish adn read won't
-    await task_write
-
-    # finally
-    # line 511 / 514 of client.ts
-    closeReq = client_pb2.CloseTunnelReq(TunnelID=tunnel.TunnelID)
-    await interact._stub.CloseTunnel(interact._request(closeReq))
+    # await task_write
 
     return tunnel
+
+
+class MyLogger(Log):
+    async def new_task(self, msg: LoggingMessage) -> None:
+        print('here@!')
+        logger.info(msg)
+
+        if msg.Data.DisplayParams == '':
+            return
+        
+        # TODO: check if for this session / task, etc...
+
+        interact = global_dict['interact']
+        _tunnelStream = global_dict['tunnel_stream']
+        tunnelId = global_dict['tunnel_id']
+        sessionId = global_dict['session_id']
+
+        if msg.Data.DisplayParams == 'exit\n':
+            closeReq = client_pb2.CloseTunnelReq(TunnelID=tunnelId)
+            await interact._stub.CloseTunnel(interact._request(closeReq))
+            return
+
+
+        data = sliver_pb2.TunnelData()
+        data.TunnelID = tunnelId
+        data.SessionID = sessionId
+
+        # TODO: get control characters from InteractiveMessageType
+        if msg.Data.InteractiveTaskType != 0:
+            data.Data = InteractiveMessageType[msg.Data.InteractiveTaskType][1].to_bytes()
+        else:
+            data.Data = f"{msg.Data.DisplayParams}".encode('utf-8')
+        await _tunnelStream.write(data)
+        
+        await SendMythicRPCTaskUpdate(MythicRPCTaskUpdateMessage(
+            TaskID=msg.Data.ID,
+            UpdateCompleted=True,
+            UpdateStatus="success",
+        ))
+        # await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
+        #     TaskID=msg.Data.ParentTaskID,
+        #     Response=mythic_container.MythicCommandBase.InteractiveMessageType[msg.Data.InteractiveTaskType][0].encode()
+        # ))
+
