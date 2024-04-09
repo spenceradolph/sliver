@@ -7,8 +7,8 @@ from mythic_container.MythicRPC import *
 from mythic_container.PayloadBuilder import *
 import json
 import gzip
-import time
 import concurrent.futures
+import threading
 
 async def create_sliver_client(taskData: PTTaskMessageAllData):
     # TODO: should this configfile somehow be cached so we aren't always using rpc to pull it?
@@ -278,16 +278,8 @@ async def shell(taskData: PTTaskMessageAllData):
             data.Data = f"{user_input}\n".encode('utf-8')
             await _tunnelStream.write(data)
 
-    # read_task = asyncio.create_task(read_server_data())
-    # write_task = asyncio.create_task(write_client_data())
-    # await asyncio.gather(read_task, write_task)
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-        future1 = executor.submit(read_server_data)
-        # future2 = executor.submit(write_client_data)
-
-        concurrent.futures.wait([future1])
-
+    t = threading.Thread(target=read_server_data, args=())
+    t.start()
     await write_client_data()
 
     # finally

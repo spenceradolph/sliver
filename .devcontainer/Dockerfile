@@ -17,3 +17,5 @@ RUN cd grpc && GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=True GRPC_PYTHON_BUILD_WITH_CYTH
 RUN git clone --depth 1 https://github.com/spenceradolph/sliver-py.git
 RUN cd sliver-py && git submodule update --init
 RUN pip install -e sliver-py
+
+RUN pip install mythic_container==v0.4.17
