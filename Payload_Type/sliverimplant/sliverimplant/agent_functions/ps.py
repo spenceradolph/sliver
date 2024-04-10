@@ -4,6 +4,8 @@ from mythic_container.MythicCommandBase import *
 from mythic_container.MythicRPC import *
 from mythic_container.PayloadBuilder import *
 
+import json
+
 class PsArguments(TaskArguments):
     def __init__(self, command_line, **kwargs):
         super().__init__(command_line, **kwargs)
@@ -22,6 +24,7 @@ class Ps(CommandBase):
     author = "Spencer Adolph"
     argument_class = PsArguments
     attackmapping = []
+    supported_ui_features = ["process_browser:list"]
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:        
         # Command: ps <options>
@@ -45,15 +48,31 @@ class Ps(CommandBase):
 
         ps_results = await SliverAPI.ps(taskData)
 
+        # TODO: process browser hooking feature
+        processes = []
+        for ps in ps_results:
+            processes.append(
+                MythicRPCProcessCreateData(
+                    ProcessID=ps.Pid,
+                    Name=ps.Executable
+                )
+            )
+
+        await SendMythicRPCProcessCreate(MythicRPCProcessesCreateMessage(
+            TaskID=taskData.Task.ID,
+            Processes=processes,
+        ))
+
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
-            Response=f"{str(ps_results)}".encode("UTF8"),
+            Response='success'.encode(),
         ))
+
 
         taskResponse = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,
-            Completed=True
+            Completed=True,
         )
         return taskResponse
 
