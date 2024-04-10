@@ -55,13 +55,13 @@ class Beacons(CommandBase):
             Response=response.encode("UTF8"),
         ))
 
-        response = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
+        taskResponse = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,
             Completed=True
         )
 
-        return response
+        return taskResponse
 
     async def process_response(self, task: PTTaskMessageAllData, response: any) -> PTTaskProcessResponseMessageResponse:
         resp = PTTaskProcessResponseMessageResponse(TaskID=task.Task.ID, Success=True)

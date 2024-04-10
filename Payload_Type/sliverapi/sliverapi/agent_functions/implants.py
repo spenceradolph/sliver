@@ -24,22 +24,42 @@ class Implants(CommandBase):
     attackmapping = []
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
-        client = await SliverAPI.create_sliver_client(taskData)
-        
-        implants = await client.implant_builds()
+        # List implant builds
+
+        # Usage:
+        # ======
+        #   implants [flags]
+
+        # Flags:
+        # ======
+        # TODO:  -a, --arch          string    filter builds by cpu architecture
+        # TODO:  -f, --format        string    filter builds by artifact format
+        # TODO:  -h, --help                    display help
+        # TODO:  -d, --no-debug                filter builds by debug flag
+        # TODO:  -b, --only-beacons            filter beacons
+        # TODO:  -s, --only-sessions           filter interactive sessions
+        # TODO:  -o, --os            string    filter builds by operating system
+        # TODO:  -t, --timeout       int       command timeout in seconds (default: 60)
+
+        # Sub Commands:
+        # =============
+        # TODO:  rm  Remove implant build
+
+        # 'implants' with no options
+        response = await SliverAPI.implants_list(taskData)
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
-            Response=f"Implants: {str(implants)}".encode("UTF8"),
+            Response=response.encode("UTF8"),
         ))
 
-        response = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
+        taskResponse = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,
             Completed=True
         )
 
-        return response
+        return taskResponse
 
     async def process_response(self, task: PTTaskMessageAllData, response: any) -> PTTaskProcessResponseMessageResponse:
         resp = PTTaskProcessResponseMessageResponse(TaskID=task.Task.ID, Success=True)

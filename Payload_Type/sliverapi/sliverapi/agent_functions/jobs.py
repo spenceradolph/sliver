@@ -10,8 +10,9 @@ class JobsArguments(TaskArguments):
         self.args = [
             CommandParameter(
                 name="k",
-                description="Which job to listen kill",
+                description="kill a background job",
                 type=ParameterType.Number,
+                default_value=-1,
                 parameter_group_info=[ParameterGroupInfo(
                     required=False
                 )]
@@ -33,30 +34,39 @@ class Jobs(CommandBase):
     attackmapping = []
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
-        client = await SliverAPI.create_sliver_client(taskData)
+        # Command: jobs <options>
+        # About: Manage jobs/listeners.
 
-        # kill the job if -k was specified
-        killid = taskData.args.get_arg('k')
-        if (killid):
-            await client.kill_job(killid)
-            await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
-                TaskID=taskData.Task.ID,
-                Response="Job Killed".encode("UTF8"),
-            ))
+        # Usage:
+        # ======
+        #   jobs [flags]
+
+        # Flags:
+        # ======
+        # TODO:  -h, --help            display help
+        #        -k, --kill     int    kill a background job (default: -1)
+        # TODO:  -K, --kill-all        kill all jobs
+        # TODO:  -t, --timeout  int    command timeout in seconds (default: 60)
+
+
+        if (taskData.args.get_arg('k') != -1):
+            job_id = taskData.args.get_arg('k')
+            response = await SliverAPI.jobs_kill(taskData, job_id)
         else:
-            jobs = await client.jobs()
-            await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
-                TaskID=taskData.Task.ID,
-                Response=f"Jobs: {jobs}".encode("UTF8"),
-            ))
+            response = await SliverAPI.jobs_list(taskData)
 
-        response = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
+        await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
+            TaskID=taskData.Task.ID,
+            Response=response.encode("UTF8"),
+        ))
+
+        taskResponse = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,
             Completed=True
         )
 
-        return response
+        return taskResponse
 
     async def process_response(self, task: PTTaskMessageAllData, response: any) -> PTTaskProcessResponseMessageResponse:
         resp = PTTaskProcessResponseMessageResponse(TaskID=task.Task.ID, Success=True)

@@ -15,7 +15,7 @@ class SliverApi(PayloadType):
     supports_dynamic_loading = False
     c2_profiles = []
     mythic_encrypts = False
-    translation_container = None # "myPythonTranslation"
+    translation_container = None
     agent_type = "service"
     agent_path = pathlib.Path(".") / "sliverapi"
     agent_icon_path = agent_path / "agent_functions" / "sliver.svg"
@@ -28,7 +28,6 @@ class SliverApi(PayloadType):
             parameter_type=BuildParameterType.File,
         )
     ]
-
 
     async def build(self) -> BuildResponse:
         # this function gets called to create an instance of your payload

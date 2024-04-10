@@ -9,8 +9,11 @@ class MtlsArguments(TaskArguments):
         super().__init__(command_line, **kwargs)
         self.args = [
             CommandParameter(
-                name="port",
-                description="Which port to listen on",
+                name="lport",
+                cli_name="l",
+                display_name="lport",
+                description="tcp listen port (default: 8888)",
+                default_value=8888,
                 type=ParameterType.Number
             ),
         ]
@@ -30,27 +33,36 @@ class Mtls(CommandBase):
     attackmapping = []
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
-        client = await SliverAPI.create_sliver_client(taskData)
-        
-        results = await client.start_mtls_listener(
-            host = "0.0.0.0",
-            port = taskData.args.get_arg('port'),
-            persistent = False,
-        )
+        # Start an mTLS listener
 
+        # Usage:
+        # ======
+        #   mtls [flags]
+
+        # Flags:
+        # ======
+        # TODO:  -h, --help                 display help
+        # TODO:  -L, --lhost      string    interface to bind server to
+        #        -l, --lport      int       tcp listen port (default: 8888)
+        # TODO:  -p, --persistent           make persistent across restarts
+        # TODO:  -t, --timeout    int       command timeout in seconds (default: 60)
+
+        # 'mtls -l <port>'
+        port = taskData.args.get_arg('lport')
+        response = await SliverAPI.mtls_start(taskData, port)
+        
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
-            Response=f"results: {results}".encode("UTF8"),
+            Response=response.encode("UTF8"),
         ))
 
-        # ling
-        response = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
+        taskResponse = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,
             Completed=True
         )
 
-        return response
+        return taskResponse
 
     async def process_response(self, task: PTTaskMessageAllData, response: any) -> PTTaskProcessResponseMessageResponse:
         resp = PTTaskProcessResponseMessageResponse(TaskID=task.Task.ID, Success=True)
