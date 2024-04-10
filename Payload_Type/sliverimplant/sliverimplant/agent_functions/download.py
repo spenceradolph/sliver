@@ -31,6 +31,28 @@ class Download(CommandBase):
     attackmapping = []
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
+        # Command: download [remote src] <local dst>
+        # About: Download a file or directory from the remote system. Directories will be downloaded as a gzipped TAR file.
+
+        # Usage:
+        # ======
+        #   download [flags] remote-path [local-path]
+
+        # Args:
+        # =====
+        #   remote-path  string    path to the file or directory to download
+        #   local-path   string    local path where the downloaded file will be saved (default: .)
+
+        # Flags:
+        # ======
+        # TODO:  -F, --file-type string    force a specific file type (binary/text) if looting
+        # TODO:  -h, --help                display help
+        # TODO:  -X, --loot                save output as loot
+        # TODO:  -n, --name      string    name to assign the download if looting
+        # TODO:  -r, --recurse             recursively download all files in a directory
+        # TODO:  -t, --timeout   int       command timeout in seconds (default: 60)
+        # TODO:  -T, --type      string    force a specific loot type (file/cred) if looting
+
         plaintext = await SliverAPI.download(taskData)
 
         results = await SendMythicRPCFileCreate(MythicRPCFileCreateMessage(

@@ -31,6 +31,22 @@ class Mkdir(CommandBase):
     attackmapping = []
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
+        # Command: mkdir [remote path]
+        # About: Create a remote directory.
+
+        # Usage:
+        # ======
+        #   mkdir [flags] path
+
+        # Args:
+        # =====
+        #   path  string    path to the directory to create
+
+        # Flags:
+        # ======
+        # TODO:  -h, --help           display help
+        # TODO:  -t, --timeout int    command timeout in seconds (default: 60)
+
         mkdir_results = await SliverAPI.mkdir(taskData)
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(

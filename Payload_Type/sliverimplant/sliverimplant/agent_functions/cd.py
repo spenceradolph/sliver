@@ -31,6 +31,22 @@ class Cd(CommandBase):
     attackmapping = []
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
+        # Command: cd [remote path]
+        # About: Change working directory of the active session.
+
+        # Usage:
+        # ======
+        #   cd [flags] [path]
+
+        # Args:
+        # =====
+        #   path  string    path to the directory (default: .)
+
+        # Flags:
+        # ======
+        # TODO:  -h, --help           display help
+        # TODO:  -t, --timeout int    command timeout in seconds (default: 60)
+
         response = await SliverAPI.cd(taskData, taskData.args.get_arg('path'))
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(

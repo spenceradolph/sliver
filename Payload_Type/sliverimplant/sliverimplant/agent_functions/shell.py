@@ -24,7 +24,20 @@ class Shell(CommandBase):
     attackmapping = []
     supported_ui_features = ['task_response:interactive']
 
-    async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:       
+    async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
+        # Start an interactive shell
+
+        # Usage:
+        # ======
+        #   shell [flags]
+
+        # Flags:
+        # ======
+        # TODO:  -h, --help                 display help
+        # TODO:  -y, --no-pty               disable use of pty on macos/linux
+        # TODO:  -s, --shell-path string    path to shell interpreter
+        # TODO:  -t, --timeout    int       command timeout in seconds (default: 60)
+
         await SliverAPI.shell(taskData)
 
         taskResponse = MythicCommandBase.PTTaskCreateTaskingMessageResponse(

@@ -23,7 +23,19 @@ class Ifconfig(CommandBase):
     argument_class = IfconfigArguments
     attackmapping = []
 
-    async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:      
+    async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
+        # View network interface configurations
+
+        # Usage:
+        # ======
+        #   ifconfig [flags]
+
+        # Flags:
+        # ======
+        # TODO:  -A, --all            show all network adapters (default only shows IPv4)
+        # TODO:  -h, --help           display help
+        # TODO:  -t, --timeout int    command timeout in seconds (default: 60)
+
         ifconfig_results = await SliverAPI.ifconfig(taskData)
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(

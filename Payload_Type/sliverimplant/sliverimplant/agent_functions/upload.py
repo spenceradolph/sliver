@@ -35,6 +35,24 @@ class Upload(CommandBase):
     attackmapping = []
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
+        # Command: upload [local src] <remote dst>
+        # About: Upload a file to the remote system.
+
+        # Usage:
+        # ======
+        #   upload [flags] local-path [remote-path]
+
+        # Args:
+        # =====
+        #   local-path   string    local path to the file to upload
+        #   remote-path  string    path to the file or directory to upload to
+
+        # Flags:
+        # ======
+        # TODO:  -h, --help           display help
+        # TODO:  -i, --ioc            track uploaded file as an ioc
+        # TODO:  -t, --timeout int    command timeout in seconds (default: 60)
+
         response = await SliverAPI.upload(taskData, taskData.args.get_arg('uuid'), taskData.args.get_arg('path'))
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(

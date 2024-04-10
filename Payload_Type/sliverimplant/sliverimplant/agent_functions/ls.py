@@ -25,7 +25,26 @@ class Ls(CommandBase):
     # supported_ui_features = ["file_browser:list"]
     # browser_script = BrowserScript(script_name="ls_new", author="@its_a_feature_", for_new_ui=True)
 
-    async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:       
+    async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
+        # Command: ls <remote path>
+        # About: List remote files in current directory, or path if provided.
+
+        # Usage:
+        # ======
+        #   ls [flags] [path]
+
+        # Args:
+        # =====
+        #   path  string    path to enumerate (default: .)
+
+        # Flags:
+        # ======
+        # TODO:  -h, --help            display help
+        # TODO:  -m, --modified        sort by modified time
+        # TODO:  -r, --reverse         reverse sort order
+        # TODO:  -s, --size            sort by size
+        # TODO:  -t, --timeout  int    command timeout in seconds (default: 60)
+
         ls_results = await SliverAPI.ls(taskData)
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
