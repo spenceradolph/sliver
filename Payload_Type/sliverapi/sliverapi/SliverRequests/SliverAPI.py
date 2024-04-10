@@ -47,7 +47,7 @@ async def profiles_list(taskData: PTTaskMessageAllData):
     # TODO: match sliver formatting
     # show nothing if no profiles
 
-    return profiles
+    return f"{profiles}"
 
 async def beacons_list(taskData: PTTaskMessageAllData):
     client = await create_sliver_client(taskData)
@@ -61,7 +61,7 @@ async def beacons_list(taskData: PTTaskMessageAllData):
 
     # What to show if no beacons?
 
-    return beacons
+    return f"{beacons}"
 
 async def implants_list(taskData: PTTaskMessageAllData):
     client = await create_sliver_client(taskData)
