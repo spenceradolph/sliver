@@ -1,4 +1,3 @@
-# TODO: learn how to python, this is probably not right
 from ..SliverRequests import SliverAPI
 
 from mythic_container.MythicCommandBase import *
@@ -24,9 +23,7 @@ class Netstat(CommandBase):
     argument_class = NetstatArguments
     attackmapping = []
 
-    async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
-        # TODO: send some message about tasking status?
-        
+    async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:       
         netstat_results = await SliverAPI.netstat(taskData)
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
@@ -34,7 +31,6 @@ class Netstat(CommandBase):
             Response=f"{str(netstat_results)}".encode("UTF8"),
         ))
 
-        # TODO: error handling
         response = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,

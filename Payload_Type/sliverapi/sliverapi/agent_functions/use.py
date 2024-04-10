@@ -1,4 +1,3 @@
-# TODO: learn how to python, this is probably not right
 from ..SliverRequests import SliverAPI
 import json
 
@@ -10,7 +9,6 @@ class UseArguments(TaskArguments):
     def __init__(self, command_line, **kwargs):
         super().__init__(command_line, **kwargs)
         self.args = [
-            # TODO: add arguments here for mtls
             CommandParameter(
                 name="id",
                 description="Which uuid to use.",
@@ -35,8 +33,6 @@ class Use(CommandBase):
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
         client = await SliverAPI.create_sliver_client(taskData)
         
-        # query to confirm uuid
-        # TODO: determine if session or beacon uuid
         sliver_id = taskData.args.get_arg('id')
         beacon_info = await client.beacon_by_id(sliver_id)
         session_info = await client.session_by_id(sliver_id)
@@ -82,7 +78,6 @@ class Use(CommandBase):
             await SendMythicRPCPayloadCreateFromScratch(new_payload)
 
         # create the callback
-        # TODO: Probably a way to document this 'Type' for intellisense
         extraInfo = json.dumps({
             # TODO: if buildparams changes, then this won't work anymore (could make it more resilient)
             "slivercfg_fileid": taskData.BuildParameters[0].Value,
@@ -99,7 +94,6 @@ class Use(CommandBase):
             PID=implant_info.PID
         ))
 
-        # TODO: error handling
         response = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,

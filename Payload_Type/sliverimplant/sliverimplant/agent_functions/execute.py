@@ -1,4 +1,3 @@
-# TODO: learn how to python, this is probably not right
 from ..SliverRequests import SliverAPI
 
 
@@ -10,7 +9,6 @@ class ExecuteArguments(TaskArguments):
     def __init__(self, command_line, **kwargs):
         super().__init__(command_line, **kwargs)
         self.args = [
-            # TODO: add arguments here for mtls
             CommandParameter(
                 name="exe",
                 description="exe to execute",
@@ -45,14 +43,11 @@ class Execute(CommandBase):
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
         execute_results = await SliverAPI.execute(taskData)
 
-        # TODO: other error handling
-
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
             Response=f"{str(execute_results)}".encode("UTF8"),
         ))
 
-        # TODO: error handling
         response = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,

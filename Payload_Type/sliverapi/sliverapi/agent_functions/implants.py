@@ -1,4 +1,3 @@
-# TODO: learn how to python, this is probably not right
 from ..SliverRequests import SliverAPI
 
 from mythic_container.MythicCommandBase import *
@@ -34,7 +33,6 @@ class Implants(CommandBase):
             Response=f"Implants: {str(implants)}".encode("UTF8"),
         ))
 
-        # TODO: error handling
         response = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,

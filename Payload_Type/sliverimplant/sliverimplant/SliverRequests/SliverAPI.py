@@ -7,21 +7,15 @@ from mythic_container.MythicRPC import *
 from mythic_container.PayloadBuilder import *
 import json
 import gzip
-import concurrent.futures
-import threading
-
-import mythic_container.MythicCommandBase
 from mythic_container.LoggingBase import *
-import logging
 from mythic_container.MythicGoRPC import *
 
-# TODO: make this better
+# TODO: make this better, if using identify all fields that will be used / handle emptying when exiting
 global_dict = {}
 
 async def create_sliver_client(taskData: PTTaskMessageAllData):
     # TODO: should this configfile somehow be cached so we aren't always using rpc to pull it?
     # Should this be a class who's attributes then are updated with the config?
-    # Requires better python skills...
 
     extraInfoObj = json.loads(taskData.Callback.ExtraInfo)
     configfile = extraInfoObj['slivercfg_fileid']
@@ -29,8 +23,6 @@ async def create_sliver_client(taskData: PTTaskMessageAllData):
     filecontent = await SendMythicRPCFileGetContent(MythicRPCFileGetContentMessage(
         AgentFileId=configfile
     ))
-
-    # TODO: error handling!
 
     config = SliverClientConfig.parse_config(filecontent.Content)
     client = SliverClient(config)
@@ -41,19 +33,19 @@ async def create_sliver_client(taskData: PTTaskMessageAllData):
 async def generate():
     # TODO: generate an implant based on config provided
 
-    implant_config = client_pb2.ImplantConfig(
-        IsBeacon=True,
-        Name="sliver-pytest-1",
-        GOARCH="amd64",
-        GOOS="linux",
-        Format=client_pb2.OutputFormat.EXECUTABLE,
-        ObfuscateSymbols=False,
-        C2=[client_pb2.ImplantC2(Priority=0, URL="http://localhost:80")],
-    )
+    # implant_config = client_pb2.ImplantConfig(
+    #     IsBeacon=True,
+    #     Name="sliver-pytest-1",
+    #     GOARCH="amd64",
+    #     GOOS="linux",
+    #     Format=client_pb2.OutputFormat.EXECUTABLE,
+    #     ObfuscateSymbols=False,
+    #     C2=[client_pb2.ImplantC2(Priority=0, URL="http://localhost:80")],
+    # )
 
-    implant = await client.generate_implant(implant_config)
+    # implant = await client.generate_implant(implant_config)
 
-    return
+    return None
 
 async def ifconfig(taskData: PTTaskMessageAllData):
     client = await create_sliver_client(taskData)
@@ -139,8 +131,6 @@ async def ps(taskData: PTTaskMessageAllData):
 
 async def netstat(taskData: PTTaskMessageAllData):
     client = await create_sliver_client(taskData)
-
-    # TODO: get args from task
 
     callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
     if (callback_extra_info['type'] == 'beacon'):
@@ -260,42 +250,18 @@ async def shell(taskData: PTTaskMessageAllData):
     req.Path = "/bin/bash"
     req.EnablePTY = True
     shell_result = await _rpc.Shell(request(req)) # line 479 in client.ts
+    # TODO: send shell_result output to the task, to show which pid it has created / bound to
 
     async def read_server_data():
         async for data in _tunnelStream:
-            await MythicRPC().execute("create_output", task_id=taskData.Task.ID, output=f'{data.Data}\n')
+            await MythicRPC().execute("create_output", task_id=taskData.Task.ID, output=f'{data.Data.decode("utf-8")}\n')
 
-    async def write_client_data():
-        while True:
-            await asyncio.sleep(1)
-            # TODO: get this from mythic
-            user_input = input("'exit', 'ctrl-c', otherwise cmd: ")
-            if user_input.lower() == 'exit':
-                break
-            
-            if user_input == 'ctrl-c':
-                data = sliver_pb2.TunnelData()
-                data.TunnelID = tunnelId
-                data.SessionID = interact.session_id
-                data.Data = bytes([3])
-                await _tunnelStream.write(data)
-                continue
-
-            # interpret as a command to send (with \n to press enter?)
-            data = sliver_pb2.TunnelData()
-            data.TunnelID = tunnelId
-            data.SessionID = interact.session_id
-            data.Data = f"{user_input}\n".encode('utf-8')
-            await _tunnelStream.write(data)
-
-    task_read = asyncio.create_task(read_server_data())
-    # task_write = asyncio.create_task(write_client_data())
-        # only await the write, since that will eventuallly finish adn read won't
-    # await task_write
+    # TODO: don't let this run forever, keep track of it and stop it when 'exit' or something is called
+    asyncio.create_task(read_server_data())
 
     return tunnel
 
-
+# TODO: move this somewhere else? (shell functionality might be its own file by this point...)
 class MyLogger(Log):
     async def new_task(self, msg: LoggingMessage) -> None:
         print('here@!')

@@ -1,4 +1,3 @@
-# TODO: learn how to python, this is probably not right
 from ..SliverRequests import SliverAPI
 
 from mythic_container.MythicCommandBase import *
@@ -26,7 +25,6 @@ class JobsArguments(TaskArguments):
 class Jobs(CommandBase):
     cmd = "jobs"
     needs_admin = False
-    # TODO: what is the intended use of help_cmd
     help_cmd = "jobs"
     description = "Get the list of jobs that Sliver is aware of."
     version = 1
@@ -52,7 +50,6 @@ class Jobs(CommandBase):
                 Response=f"Jobs: {jobs}".encode("UTF8"),
             ))
 
-        # TODO: error handling
         response = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,

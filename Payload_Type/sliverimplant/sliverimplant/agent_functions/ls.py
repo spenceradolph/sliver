@@ -1,4 +1,3 @@
-# TODO: learn how to python, this is probably not right
 from ..SliverRequests import SliverAPI
 
 from mythic_container.MythicCommandBase import *
@@ -26,9 +25,7 @@ class Ls(CommandBase):
     # supported_ui_features = ["file_browser:list"]
     # browser_script = BrowserScript(script_name="ls_new", author="@its_a_feature_", for_new_ui=True)
 
-    async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
-        # TODO: send some message about tasking status?
-        
+    async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:       
         ls_results = await SliverAPI.ls(taskData)
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
@@ -36,7 +33,6 @@ class Ls(CommandBase):
             Response=f"{str(ls_results)}".encode("UTF8"),
         ))
 
-        # TODO: error handling
         response = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,

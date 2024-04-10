@@ -1,6 +1,4 @@
-# TODO: learn how to python, this is probably not right
 from ..SliverRequests import SliverAPI
-# import gzip
 
 from mythic_container.MythicCommandBase import *
 from mythic_container.MythicRPC import *
@@ -10,7 +8,6 @@ class UploadArguments(TaskArguments):
     def __init__(self, command_line, **kwargs):
         super().__init__(command_line, **kwargs)
         self.args = [
-            # TODO: add arguments here for mtls
             CommandParameter(
                 name="path",
                 description="full path to create file",
@@ -39,8 +36,6 @@ class Upload(CommandBase):
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
         upload_results = await SliverAPI.upload(taskData)
-
-        # TODO: other error handling
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,

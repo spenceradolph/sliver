@@ -1,4 +1,3 @@
-# TODO: learn how to python, this is probably not right
 from ..SliverRequests import SliverAPI
 
 
@@ -10,7 +9,6 @@ class DownloadArguments(TaskArguments):
     def __init__(self, command_line, **kwargs):
         super().__init__(command_line, **kwargs)
         self.args = [
-            # TODO: add arguments here for mtls
             CommandParameter(
                 name="path",
                 description="path to file",
@@ -43,14 +41,11 @@ class Download(CommandBase):
             IsDownloadFromAgent=True
         ))
 
-        # TODO: other error handling
-
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
             Response=f"agent file id == {results.AgentFileId}".encode("UTF8"),
         ))
 
-        # TODO: error handling
         response = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,

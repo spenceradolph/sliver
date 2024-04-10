@@ -19,3 +19,4 @@ RUN cd sliver-py && git submodule update --init
 RUN pip install -e sliver-py
 
 RUN pip install mythic_container==v0.4.17
+RUN pip install tabulate

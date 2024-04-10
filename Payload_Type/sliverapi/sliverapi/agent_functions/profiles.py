@@ -1,4 +1,3 @@
-# TODO: learn how to python, this is probably not right
 from ..SliverRequests import SliverAPI
 
 from mythic_container.MythicCommandBase import *
@@ -25,17 +24,31 @@ class Profiles(CommandBase):
     attackmapping = []
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
-        client = await SliverAPI.create_sliver_client(taskData)
-        
-        # TODO: figure out custom command that accomplishes this
-        profiles = await client.implant_profiles()
+        # List existing profiles
+
+        # Usage:
+        # ======
+        #   profiles [flags]
+
+        # Flags:
+        # ======
+        # TODO:  -h, --help           display help
+        # TODO:  -t, --timeout int    command timeout in seconds (default: 60)
+
+        # Sub Commands:
+        # =============
+        # TODO:  generate  Generate implant from a profile
+        # TODO:  new       Create a new implant profile (interactive session)
+        # TODO:  rm        Remove a profile
+
+        # 'profiles' with no options
+        response = await SliverAPI.profiles_list(taskData)
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
-            Response=f"Profiles: {str(profiles)}".encode("UTF8"),
+            Response=response.encode("UTF8"),
         ))
 
-        # TODO: error handling
         response = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,

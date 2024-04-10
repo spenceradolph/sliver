@@ -1,4 +1,3 @@
-# TODO: learn how to python, this is probably not right
 from ..SliverRequests import SliverAPI
 
 from mythic_container.MythicCommandBase import *
@@ -24,9 +23,7 @@ class Pwd(CommandBase):
     argument_class = PwdArguments
     attackmapping = []
 
-    async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
-        # TODO: send some message about tasking status?
-        
+    async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:        
         pwd_results = await SliverAPI.pwd(taskData)
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
@@ -34,7 +31,6 @@ class Pwd(CommandBase):
             Response=f"{str(pwd_results)}".encode("UTF8"),
         ))
 
-        # TODO: error handling
         response = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,

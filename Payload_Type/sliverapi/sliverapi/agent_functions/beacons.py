@@ -1,4 +1,3 @@
-# TODO: learn how to python, this is probably not right
 from ..SliverRequests import SliverAPI
 
 from mythic_container.MythicCommandBase import *
@@ -25,16 +24,37 @@ class Beacons(CommandBase):
     attackmapping = []
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
-        client = await SliverAPI.create_sliver_client(taskData)
+        # Manage beacons
+
+        # Usage:
+        # ======
+        #   beacons [flags]
+
+        # Flags:
+        # ======
+        # TODO:  -f, --filter    string    filter beacons by substring
+        # TODO:  -e, --filter-re string    filter beacons by regular expression
+        # TODO:  -F, --force               force killing of the beacon
+        # TODO:  -h, --help                display help
+        # TODO:  -k, --kill      string    kill a beacon
+        # TODO:  -K, --kill-all            kill all beacons
+        # TODO:  -t, --timeout   int       command timeout in seconds (default: 60)
+
+        # Sub Commands:
+        # =============
+        # TODO:  prune  Prune stale beacons automatically
+        # TODO:  rm     Remove a beacon
+        # TODO:  watch  Watch your beacons
+
         
-        beacons = await client.beacons()
+        # 'beacons' with no options
+        response = await SliverAPI.beacons_list(taskData)
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
-            Response=f"Beacons: {str(beacons)}".encode("UTF8"),
+            Response=response.encode("UTF8"),
         ))
 
-        # TODO: error handling
         response = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,
             Success=True,
