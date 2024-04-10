@@ -221,8 +221,9 @@ async def shell(taskData: PTTaskMessageAllData):
 # TODO: move this somewhere else? (shell functionality might be its own file by this point...)
 class MyLogger(Log):
     async def new_task(self, msg: LoggingMessage) -> None:
-        print('here@!')
-        logger.info(msg)
+        # TODO: prevent follow up tasks after 'exit'
+
+        # logger.info(msg)
 
         if msg.Data.DisplayParams == '':
             return
@@ -237,6 +238,11 @@ class MyLogger(Log):
         if msg.Data.DisplayParams == 'exit\n':
             closeReq = client_pb2.CloseTunnelReq(TunnelID=tunnelId)
             await interact._stub.CloseTunnel(interact._request(closeReq))
+            await SendMythicRPCTaskUpdate(MythicRPCTaskUpdateMessage(
+                TaskID=msg.Data.ID,
+                UpdateCompleted=True,
+                UpdateStatus="finished",
+            ))
             return
 
 
