@@ -31,11 +31,11 @@ class Cd(CommandBase):
     attackmapping = []
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
-        cd_results = await SliverAPI.cd(taskData)
+        response = await SliverAPI.cd(taskData, taskData.args.get_arg('path'))
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
-            Response=f"{str(cd_results)}".encode("UTF8"),
+            Response=response.encode("UTF8"),
         ))
 
         taskResponse = MythicCommandBase.PTTaskCreateTaskingMessageResponse(

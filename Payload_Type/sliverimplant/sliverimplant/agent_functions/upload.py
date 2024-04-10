@@ -35,7 +35,7 @@ class Upload(CommandBase):
     attackmapping = []
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
-        upload_results = await SliverAPI.upload(taskData)
+        response = await SliverAPI.upload(taskData, taskData.args.get_arg('uuid'), taskData.args.get_arg('path'))
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,

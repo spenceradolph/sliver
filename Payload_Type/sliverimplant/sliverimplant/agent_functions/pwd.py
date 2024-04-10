@@ -23,12 +23,24 @@ class Pwd(CommandBase):
     argument_class = PwdArguments
     attackmapping = []
 
-    async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:        
-        pwd_results = await SliverAPI.pwd(taskData)
+    async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse: 
+        # Command: pwd
+        # About: Print working directory of the active session.
+
+        # Usage:
+        # ======
+        #   pwd [flags]
+
+        # Flags:
+        # ======
+        # TODO:  -h, --help           display help
+        # TODO:  -t, --timeout int    command timeout in seconds (default: 60)
+       
+        response = await SliverAPI.pwd(taskData)
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
-            Response=f"{str(pwd_results)}".encode("UTF8"),
+            Response=response.encode("UTF8"),
         ))
 
         taskResponse = MythicCommandBase.PTTaskCreateTaskingMessageResponse(

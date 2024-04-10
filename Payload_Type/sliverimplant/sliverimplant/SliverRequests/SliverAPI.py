@@ -13,7 +13,7 @@ from mythic_container.MythicGoRPC import *
 # TODO: make this better, if using identify all fields that will be used / handle emptying when exiting
 global_dict = {}
 
-async def create_sliver_client(taskData: PTTaskMessageAllData):
+async def create_sliver_interact(taskData: PTTaskMessageAllData):
     # TODO: should this configfile somehow be cached so we aren't always using rpc to pull it?
     # Should this be a class who's attributes then are updated with the config?
 
@@ -27,8 +27,17 @@ async def create_sliver_client(taskData: PTTaskMessageAllData):
     config = SliverClientConfig.parse_config(filecontent.Content)
     client = SliverClient(config)
     await client.connect()
+
+    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
+    isBeacon = callback_extra_info['type'] == 'beacon'
+    if (isBeacon):
+        interact = await client.interact_beacon(taskData.Payload.UUID)
+    else:
+        interact = await client.interact_session(taskData.Payload.UUID)
+
     
-    return client
+    
+    return interact, isBeacon
 
 async def generate():
     # TODO: generate an implant based on config provided
@@ -48,180 +57,128 @@ async def generate():
     return None
 
 async def ifconfig(taskData: PTTaskMessageAllData):
-    client = await create_sliver_client(taskData)
+    interact, isBeacon = await create_sliver_interact(taskData)
 
-    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
-    if (callback_extra_info['type'] == 'beacon'):
-        interact = await client.interact_beacon(taskData.Payload.UUID)
-        ifconfig_task = await interact.ifconfig()
-        ifconfig_results = await ifconfig_task
-    else:
-        interact = await client.interact_session(taskData.Payload.UUID)
-        ifconfig_results = await interact.ifconfig()
+    ifconfig_results = await interact.ifconfig()
+
+    if (isBeacon):
+        ifconfig_results = await ifconfig_results
 
     return ifconfig_results
 
 async def download(taskData: PTTaskMessageAllData):
-    client = await create_sliver_client(taskData)
+    interact, isBeacon = await create_sliver_interact(taskData)
 
-    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
-    if (callback_extra_info['type'] == 'beacon'):
-        interact = await client.interact_beacon(taskData.Payload.UUID)
-        download_task = await interact.download(remote_path=taskData.args.get_arg('path'))
-        download_results = await download_task
-    else:
-        interact = await client.interact_session(taskData.Payload.UUID)
-        download_results = await interact.download(remote_path=taskData.args.get_arg('path'))
+    download_results = await interact.download(remote_path=taskData.args.get_arg('path'))
+
+    if (isBeacon):
+        download_results = await download_results
 
     plaintext = gzip.decompress(download_results.Data)
 
     return plaintext
 
-async def upload(taskData: PTTaskMessageAllData):
-    client = await create_sliver_client(taskData)
+async def upload(taskData: PTTaskMessageAllData, uuid: str, path: str):
+    interact, isBeacon = await create_sliver_interact(taskData)
 
     filestuff = await SendMythicRPCFileGetContent(MythicRPCFileGetContentMessage(
         AgentFileId=taskData.args.get_arg('uuid')
     ))
 
-    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
-    if (callback_extra_info['type'] == 'beacon'):
-        interact = await client.interact_beacon(taskData.Payload.UUID)
-        upload_task = await interact.upload(
-            remote_path=taskData.args.get_arg('path'),
-            data=filestuff.Content
-        )
-        upload_results = await upload_task
-    else:
-        interact = await client.interact_session(taskData.Payload.UUID)
-        upload_results = await interact.upload(
-            remote_path=taskData.args.get_arg('path'),
-            data=filestuff.Content
-        )
+    upload_results = await interact.upload(
+        remote_path=taskData.args.get_arg('path'),
+        data=filestuff.Content
+    )
+
+    if (isBeacon):
+        upload_results = await upload_results     
 
     return upload_results
 
 async def ls(taskData: PTTaskMessageAllData):
-    client = await create_sliver_client(taskData)
+    interact, isBeacon = await create_sliver_interact(taskData)
 
-    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
-    if (callback_extra_info['type'] == 'beacon'):
-        interact = await client.interact_beacon(taskData.Payload.UUID)
-        ls_task = await interact.ls()
-        ls_results = await ls_task
-    else:
-        interact = await client.interact_session(taskData.Payload.UUID)
-        ls_results = await interact.ls()
+    ls_results = await interact.ls()
+
+    if (isBeacon):
+        ls_results = await ls_results
         
     return ls_results
 
 async def ps(taskData: PTTaskMessageAllData):
-    client = await create_sliver_client(taskData)
+    interact, isBeacon = await create_sliver_interact(taskData)
 
-    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
-    if (callback_extra_info['type'] == 'beacon'):
-        interact = await client.interact_beacon(taskData.Payload.UUID)
-        ps_task = await interact.ps()
-        ps_results = await ps_task
-    else:
-        interact = await client.interact_session(taskData.Payload.UUID)
-        ps_results = await interact.ps()
-        
+    ps_results = await interact.ps()
+
+    if (isBeacon):
+        ps_results = await ps_results
+
     return ps_results
 
 async def netstat(taskData: PTTaskMessageAllData):
-    client = await create_sliver_client(taskData)
+    interact, isBeacon = await create_sliver_interact(taskData)
 
-    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
-    if (callback_extra_info['type'] == 'beacon'):
-        interact = await client.interact_beacon(taskData.Payload.UUID)
-        netstat_task = await interact.netstat(tcp=True, udp=True, ipv4=True, ipv6=True, listening=True)
-        netstat_results = await netstat_task
-    else:
-        interact = await client.interact_session(taskData.Payload.UUID)
-        netstat_results = await interact.netstat(tcp=True, udp=True, ipv4=True, ipv6=True, listening=True)
-        
+    netstat_results = await interact.netstat(tcp=True, udp=True, ipv4=True, ipv6=True, listening=True)
+
+    if (isBeacon):
+        netstat_results = await netstat_results
+
     return netstat_results
 
-async def cd(taskData: PTTaskMessageAllData):
-    client = await create_sliver_client(taskData)
+async def cd(taskData: PTTaskMessageAllData, remote_path: str):
+    interact, isBeacon = await create_sliver_interact(taskData)
 
-    remote_path = taskData.args.get_arg('path')
+    cd_results = await interact.cd(remote_path=remote_path)
 
-    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
-    if (callback_extra_info['type'] == 'beacon'):
-        interact = await client.interact_beacon(taskData.Payload.UUID)
-        cd_task = await interact.cd(remote_path=remote_path)
-        cd_results = await cd_task
-    else:
-        interact = await client.interact_session(taskData.Payload.UUID)
-        cd_results = await interact.cd(remote_path=remote_path)
-        
-    return cd_results
+    if (isBeacon):
+        cd_results = await cd_results
+    
+    return f"{cd_results}"
 
 async def execute(taskData: PTTaskMessageAllData):
-    client = await create_sliver_client(taskData)
+    interact, isBeacon = await create_sliver_interact(taskData)
 
+    # TODO: get these from function parameters and extract in the parent function instead
     exe = taskData.args.get_arg('exe')
     args = taskData.args.get_arg('args')
     output = taskData.args.get_arg('output')
 
-    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
-    if (callback_extra_info['type'] == 'beacon'):
-        interact = await client.interact_beacon(taskData.Payload.UUID)
-        execute_task = await interact.execute(exe=exe, args=args, output=output)
-        execute_results = await execute_task
-    else:
-        interact = await client.interact_session(taskData.Payload.UUID)
-        execute_results = await interact.execute(exe=exe, args=args, output=output)
+    execute_results = await interact.execute(exe=exe, args=args, output=output)
+
+    if (isBeacon):
+        execute_results = await execute_results
 
     return execute_results
 
 async def mkdir(taskData: PTTaskMessageAllData):
-    client = await create_sliver_client(taskData)
+    interact, isBeacon = await create_sliver_interact(taskData)
 
+    # TODO: get these from function parameters and extract in the parent function instead
     remote_path = taskData.args.get_arg('path')
 
-    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
-    if (callback_extra_info['type'] == 'beacon'):
-        interact = await client.interact_beacon(taskData.Payload.UUID)
-        mkdir_results = await (await interact.mkdir(remote_path=remote_path))
-    else:
-        interact = await client.interact_session(taskData.Payload.UUID)
-        mkdir_results = await interact.mkdir(remote_path=remote_path)
+    mkdir_results = await interact.mkdir(remote_path=remote_path)
+
+    if (isBeacon):
+        mkdir_results = await mkdir_results
 
     return mkdir_results
 
 async def pwd(taskData: PTTaskMessageAllData):
-    client = await create_sliver_client(taskData)
+    interact, isBeacon = await create_sliver_interact(taskData)
 
-    callback_extra_info = json.loads(taskData.Callback.ExtraInfo)
-    if (callback_extra_info['type'] == 'beacon'):
-        interact = await client.interact_beacon(taskData.Payload.UUID)
-        pwd_task = await interact.pwd()
-        pwd_results = await pwd_task
-    else:
-        interact = await client.interact_session(taskData.Payload.UUID)
-        # already exposed in the client
-        pwd_results = await interact.pwd()
+    pwd_results = await interact.pwd()
 
-        # _rpc = interact._stub
-        # request = interact._request
+    if (isBeacon):
+        pwd_results = await pwd_results
 
-        # # Example of using the rpc calls more directly?
-        # req = sliver_pb2.PwdReq()
-        # pwd_results = await _rpc.Pwd(request(req))
-
-    return pwd_results
+    return f"{pwd_results}"
 
 async def shell(taskData: PTTaskMessageAllData):
-    task_info = json.loads(taskData.Callback.ExtraInfo)
-    if (task_info['type'] == 'beacon'):
-        return None # this only applies to sessions, not beacons
+    interact, isBeacon = await create_sliver_interact(taskData)
 
-    client = await create_sliver_client(taskData)
-    interact = await client.interact_session(taskData.Payload.UUID)
-    # line 36 of shell.ts example, entering client.ts shell() line 458
+    # TODO: make a different beacon payload with that command not listed? (or take this command out manually with rpc?)
+    if (isBeacon):
+        return None # TODO: throw error and more gracefully handle with (not supported for beacons)
     
     # typed as rpcpb.SliverRPCClient in TS 
     # but here is 'SliverRPCStub' type (python)
@@ -299,8 +256,4 @@ class MyLogger(Log):
             UpdateCompleted=True,
             UpdateStatus="success",
         ))
-        # await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
-        #     TaskID=msg.Data.ParentTaskID,
-        #     Response=mythic_container.MythicCommandBase.InteractiveMessageType[msg.Data.InteractiveTaskType][0].encode()
-        # ))
 
