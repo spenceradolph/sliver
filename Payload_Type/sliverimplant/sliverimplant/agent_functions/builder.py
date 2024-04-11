@@ -32,17 +32,16 @@ class SliverImplant(PayloadType):
 
     async def build(self) -> BuildResponse:
         # Just hope they have this setup already, and not have multiple
-        sliverapi_payloads = await SendMythicRPCPayloadSearch(MythicRPCPayloadSearchMessage(
-            PayloadTypes=['sliverapi'],
-            
-        ))
-        sliver_config_uuid = sliverapi_payloads.Payloads[0].BuildParameters[0].Value
-        filecontent = await SendMythicRPCFileGetContent(MythicRPCFileGetContentMessage(
-            AgentFileId=sliver_config_uuid
-        ))
-        config = SliverClientConfig.parse_config(filecontent.Content)
-        client = SliverClient(config)
-        await client.connect()
+        # sliverapi_payloads = await SendMythicRPCPayloadSearch(MythicRPCPayloadSearchMessage(
+        #     PayloadTypes=['sliverapi'],
+        # ))
+        # sliver_config_uuid = sliverapi_payloads.Payloads[0].BuildParameters[0].Value
+        # filecontent = await SendMythicRPCFileGetContent(MythicRPCFileGetContentMessage(
+        #     AgentFileId=sliver_config_uuid
+        # ))
+        # config = SliverClientConfig.parse_config(filecontent.Content)
+        # client = SliverClient(config)
+        # await client.connect()
 
         # self.build_parameters
 

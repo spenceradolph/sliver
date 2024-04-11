@@ -32,6 +32,7 @@ class Terminate(CommandBase):
     supported_ui_features = ['process_browser:kill']
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
+        print('terminate was tasked')
         # Command: terminate PID
         # About: Kills a remote process designated by PID
 
