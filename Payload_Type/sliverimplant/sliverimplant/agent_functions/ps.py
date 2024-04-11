@@ -4,8 +4,6 @@ from mythic_container.MythicCommandBase import *
 from mythic_container.MythicRPC import *
 from mythic_container.PayloadBuilder import *
 
-import json
-
 class PsArguments(TaskArguments):
     def __init__(self, command_line, **kwargs):
         super().__init__(command_line, **kwargs)
@@ -48,13 +46,17 @@ class Ps(CommandBase):
 
         ps_results = await SliverAPI.ps(taskData)
 
-        # TODO: process browser hooking feature
         processes = []
         for ps in ps_results:
             processes.append(
                 MythicRPCProcessCreateData(
+                    Host=taskData.Callback.Host,
                     ProcessID=ps.Pid,
-                    Name=ps.Executable
+                    ParentProcessID=ps.Ppid,
+                    Name=ps.Executable,
+                    User=ps.Owner,
+                    Architecture=ps.Architecture,
+                    CommandLine=" ".join(ps.CmdLine),
                 )
             )
 
@@ -62,12 +64,6 @@ class Ps(CommandBase):
             TaskID=taskData.Task.ID,
             Processes=processes,
         ))
-
-        await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
-            TaskID=taskData.Task.ID,
-            Response='success'.encode(),
-        ))
-
 
         taskResponse = MythicCommandBase.PTTaskCreateTaskingMessageResponse(
             TaskID=taskData.Task.ID,

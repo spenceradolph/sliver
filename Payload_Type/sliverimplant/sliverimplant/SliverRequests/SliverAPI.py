@@ -39,6 +39,37 @@ async def create_sliver_interact(taskData: PTTaskMessageAllData):
     
     return interact, isBeacon
 
+async def create_sliver_interact_from_msg(msg: LoggingMessage):
+    callback_search = await SendMythicRPCCallbackSearch(MythicRPCCallbackSearchMessage(
+        AgentCallbackID=msg.Data.CallbackID,
+        SearchCallbackID=msg.Data.CallbackID
+    ))
+
+    if (not callback_search.Success):
+        # TODO: error handling here
+        return None
+    
+    callbackThing = callback_search.Results[0]
+
+    extraInfoObj = json.loads(callbackThing.ExtraInfo)
+    configfile = extraInfoObj['slivercfg_fileid']
+    isBeacon = extraInfoObj['type'] == 'beacon'
+
+    filecontent = await SendMythicRPCFileGetContent(MythicRPCFileGetContentMessage(
+        AgentFileId=configfile
+    ))
+
+    config = SliverClientConfig.parse_config(filecontent.Content)
+    client = SliverClient(config)
+    await client.connect()
+
+    if (isBeacon):
+        interact = await client.interact_beacon(callbackThing.RegisteredPayloadUUID)
+    else:
+        interact = await client.interact_session(callbackThing.RegisteredPayloadUUID)
+
+    return interact, isBeacon
+
 async def generate():
     # TODO: generate an implant based on config provided
 
@@ -173,6 +204,16 @@ async def pwd(taskData: PTTaskMessageAllData):
 
     return f"{pwd_results}"
 
+async def terminate(taskData: PTTaskMessageAllData, pid: int):
+    interact, isBeacon = await create_sliver_interact(taskData)
+
+    terminate_results = await interact.terminate(pid=pid)
+
+    if (isBeacon):
+        terminate_results = await terminate_results
+
+    return f"{terminate_results}"
+
 async def shell(taskData: PTTaskMessageAllData):
     interact, isBeacon = await create_sliver_interact(taskData)
 
@@ -221,6 +262,24 @@ async def shell(taskData: PTTaskMessageAllData):
 # TODO: move this somewhere else? (shell functionality might be its own file by this point...)
 class MyLogger(Log):
     async def new_task(self, msg: LoggingMessage) -> None:
+        if (msg.Data.CommandName == 'terminate'):
+            pid_to_kill = json.loads(msg.Data.Params)["process_id"]
+            # TODO: refactor this to share code with real terminate
+
+            interact, isBeacon = await create_sliver_interact_from_msg(msg=msg)
+
+            terminate_results = await interact.terminate(pid=pid_to_kill)
+
+            if (isBeacon):
+                terminate_results = await terminate_results
+
+            # TODO: send status success to the task in the gui
+            return
+
+
+        if (not msg.Data.IsInteractiveTask):
+            return
+
         # TODO: prevent follow up tasks after 'exit'
 
         # logger.info(msg)

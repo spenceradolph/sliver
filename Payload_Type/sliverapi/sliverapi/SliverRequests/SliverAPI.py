@@ -172,7 +172,7 @@ async def use(taskData: PTTaskMessageAllData, sliver_id: int):
                 description=f"sliver {'beaconing' if isBeacon else 'interactive'} implant for {sliver_id}",
                 build_parameters=[],
                 c2_profiles=[],
-                commands=['ifconfig', 'download', 'upload', 'ls', 'ps', 'netstat', 'cat', 'cd', 'pwd', 'execute', 'mkdir', 'shell']
+                commands=['ifconfig', 'download', 'upload', 'ls', 'ps', 'netstat', 'cat', 'cd', 'pwd', 'execute', 'mkdir', 'shell', 'terminate']
             ),
         )
         await SendMythicRPCPayloadCreateFromScratch(new_payload)
@@ -183,7 +183,7 @@ async def use(taskData: PTTaskMessageAllData, sliver_id: int):
         "slivercfg_fileid": taskData.BuildParameters[0].Value,
         "type": 'beacon' if isBeacon else 'session'
     })
-    await SendMythicRPCCallbackCreate(MythicRPCCallbackCreateMessage(
+    response = await SendMythicRPCCallbackCreate(MythicRPCCallbackCreateMessage(
         PayloadUUID=sliver_id,
         C2ProfileName="",
         IntegrityLevel=3,
