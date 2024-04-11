@@ -34,40 +34,7 @@ async def create_sliver_interact(taskData: PTTaskMessageAllData):
         interact = await client.interact_beacon(taskData.Payload.UUID)
     else:
         interact = await client.interact_session(taskData.Payload.UUID)
-
     
-    
-    return interact, isBeacon
-
-async def create_sliver_interact_from_msg(msg: LoggingMessage):
-    callback_search = await SendMythicRPCCallbackSearch(MythicRPCCallbackSearchMessage(
-        AgentCallbackID=msg.Data.CallbackID,
-        SearchCallbackID=msg.Data.CallbackID
-    ))
-
-    if (not callback_search.Success):
-        # TODO: error handling here
-        return None
-    
-    callbackThing = callback_search.Results[0]
-
-    extraInfoObj = json.loads(callbackThing.ExtraInfo)
-    configfile = extraInfoObj['slivercfg_fileid']
-    isBeacon = extraInfoObj['type'] == 'beacon'
-
-    filecontent = await SendMythicRPCFileGetContent(MythicRPCFileGetContentMessage(
-        AgentFileId=configfile
-    ))
-
-    config = SliverClientConfig.parse_config(filecontent.Content)
-    client = SliverClient(config)
-    await client.connect()
-
-    if (isBeacon):
-        interact = await client.interact_beacon(callbackThing.RegisteredPayloadUUID)
-    else:
-        interact = await client.interact_session(callbackThing.RegisteredPayloadUUID)
-
     return interact, isBeacon
 
 async def generate():
@@ -113,11 +80,11 @@ async def upload(taskData: PTTaskMessageAllData, uuid: str, path: str):
     interact, isBeacon = await create_sliver_interact(taskData)
 
     filestuff = await SendMythicRPCFileGetContent(MythicRPCFileGetContentMessage(
-        AgentFileId=taskData.args.get_arg('uuid')
+        AgentFileId=uuid
     ))
 
     upload_results = await interact.upload(
-        remote_path=taskData.args.get_arg('path'),
+        remote_path=path,
         data=filestuff.Content
     )
 
@@ -126,10 +93,10 @@ async def upload(taskData: PTTaskMessageAllData, uuid: str, path: str):
 
     return upload_results
 
-async def ls(taskData: PTTaskMessageAllData):
+async def ls(taskData: PTTaskMessageAllData, path_to_ls: str):
     interact, isBeacon = await create_sliver_interact(taskData)
 
-    ls_results = await interact.ls()
+    ls_results = await interact.ls(remote_path=path_to_ls)
 
     if (isBeacon):
         ls_results = await ls_results
@@ -262,21 +229,6 @@ async def shell(taskData: PTTaskMessageAllData):
 # TODO: move this somewhere else? (shell functionality might be its own file by this point...)
 class MyLogger(Log):
     async def new_task(self, msg: LoggingMessage) -> None:
-        if (msg.Data.CommandName == 'terminate'):
-            pid_to_kill = json.loads(msg.Data.Params)["process_id"]
-            # TODO: refactor this to share code with real terminate
-
-            interact, isBeacon = await create_sliver_interact_from_msg(msg=msg)
-
-            terminate_results = await interact.terminate(pid=pid_to_kill)
-
-            if (isBeacon):
-                terminate_results = await terminate_results
-
-            # TODO: send status success to the task in the gui
-            return
-
-
         if (not msg.Data.IsInteractiveTask):
             return
 

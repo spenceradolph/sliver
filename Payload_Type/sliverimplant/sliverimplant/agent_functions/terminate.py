@@ -1,6 +1,5 @@
 from ..SliverRequests import SliverAPI
 
-
 from mythic_container.MythicCommandBase import *
 from mythic_container.MythicRPC import *
 from mythic_container.PayloadBuilder import *
@@ -10,7 +9,7 @@ class TerminateArguments(TaskArguments):
         super().__init__(command_line, **kwargs)
         self.args = [
             CommandParameter(
-                name="pid",
+                name="process_id",
                 description="pid to kill",
                 type=ParameterType.Number
             ),
@@ -32,7 +31,6 @@ class Terminate(CommandBase):
     supported_ui_features = ['process_browser:kill']
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
-        print('terminate was tasked')
         # Command: terminate PID
         # About: Kills a remote process designated by PID
 
@@ -50,7 +48,7 @@ class Terminate(CommandBase):
         # TODO:  -h, --help           display help
         # TODO:  -t, --timeout int    command timeout in seconds (default: 60)
 
-        pid_to_kill = taskData.args.get_arg('pid')
+        pid_to_kill = taskData.args.get_arg('process_id')
         response = await SliverAPI.terminate(taskData, pid_to_kill)
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(

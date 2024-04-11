@@ -7,10 +7,20 @@ from mythic_container.PayloadBuilder import *
 class LsArguments(TaskArguments):
     def __init__(self, command_line, **kwargs):
         super().__init__(command_line, **kwargs)
-        self.args = []
+        self.args = [
+            CommandParameter(
+                name="full_path",
+                description="absolute path to the file/folder",
+                default_value='.',
+                type=ParameterType.String,
+                parameter_group_info=[ParameterGroupInfo(
+                    required=False
+                )]
+            ),
+        ]
 
     async def parse_arguments(self):
-        pass
+        self.load_args_from_json_string(self.command_line)
 
 
 class Ls(CommandBase):
@@ -23,7 +33,6 @@ class Ls(CommandBase):
     argument_class = LsArguments
     attackmapping = []
     # supported_ui_features = ["file_browser:list"]
-    # browser_script = BrowserScript(script_name="ls_new", author="@its_a_feature_", for_new_ui=True)
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
         # Command: ls <remote path>
@@ -45,7 +54,60 @@ class Ls(CommandBase):
         # TODO:  -s, --size            sort by size
         # TODO:  -t, --timeout  int    command timeout in seconds (default: 60)
 
-        ls_results = await SliverAPI.ls(taskData)
+        path_to_ls = taskData.args.get_arg('full_path')
+        ls_results = await SliverAPI.ls(taskData, path_to_ls)
+
+        # PATH will always be the 'directory' that is queried
+        # Files will always be files/directories inside the path
+
+        # This is the shape of data that sliver offers
+
+        # Path: "/home"
+        # Exists: true
+        # Files {
+        #   Name: "ubuntu"
+        #   IsDir: true
+        #   Size: 4096
+        #   ModTime: 1712706688
+        #   Mode: "drwxr-x---"
+        # }
+        # timezone: "CDT"
+        # timezoneOffset: -18000
+
+        # files = []
+        # if ls_results.Files != []:
+        #     for file in ls_results.Files:
+        #         files.append(MythicRPCFileBrowserDataChildren(
+        #                 Name=file.Name,
+        #                 IsFile=not file.IsDir,
+        #                 Permissions={},
+        #                 ModifyTime=file.ModTime,
+        #                 Size=file.Size
+        #             )
+        #         )
+
+        # Name = ls_results.Path.split('/')[-1]
+        # Parent = "/".join(ls_results.Path.split('/')[:-1])
+
+        # # edge case (probably check length of parent path list instead)
+        # if Parent == '/':
+        #     Parent = ''
+
+        # # TODO: refactor all of this for edge cases
+        # if path_to_ls == '/':
+        #     Name = '/'
+        #     Parent = ''
+
+        # await SendMythicRPCFileBrowserCreate(MythicRPCFileBrowserCreateMessage(
+        #     TaskID=taskData.Task.ID,
+        #     FileBrowser=MythicRPCFileBrowserData(
+        #         # Host='ubuntu',
+        #         Name="/",
+        #         ParentPath="",
+        #         IsFile=False,
+        #         Files=[]
+        #     ),
+        # ))
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
