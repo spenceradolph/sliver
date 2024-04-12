@@ -106,7 +106,8 @@ class Ls(CommandBase):
                 Name=Name,
                 ParentPath=Parent,
                 IsFile=False,
-                Files=files
+                Files=files,
+                # Success=True
             ),
         ))
 

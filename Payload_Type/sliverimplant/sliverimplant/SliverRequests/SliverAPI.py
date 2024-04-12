@@ -93,6 +93,16 @@ async def upload(taskData: PTTaskMessageAllData, agent_file_uuid: str, path: str
 
     return upload_results
 
+async def rm(taskData: PTTaskMessageAllData, path_to_rm: str):
+    interact, isBeacon = await create_sliver_interact(taskData)
+
+    rm_results = await interact.rm(remote_path=path_to_rm)
+    
+    if (isBeacon):
+        rm_results = await rm_results
+
+    return rm_results
+
 async def ls(taskData: PTTaskMessageAllData, path_to_ls: str):
     interact, isBeacon = await create_sliver_interact(taskData)
 

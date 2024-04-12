@@ -33,6 +33,7 @@ class Upload(CommandBase):
     author = "Spencer Adolph"
     argument_class = UploadArguments
     attackmapping = []
+    supported_ui_features = ["file_browser:upload"]
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
         # Command: upload [local src] <remote dst>
