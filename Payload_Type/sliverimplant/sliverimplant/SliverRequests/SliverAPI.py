@@ -64,10 +64,10 @@ async def ifconfig(taskData: PTTaskMessageAllData):
 
     return ifconfig_results
 
-async def download(taskData: PTTaskMessageAllData):
+async def download(taskData: PTTaskMessageAllData, full_path: str):
     interact, isBeacon = await create_sliver_interact(taskData)
 
-    download_results = await interact.download(remote_path=taskData.args.get_arg('path'))
+    download_results = await interact.download(remote_path=full_path)
 
     if (isBeacon):
         download_results = await download_results
@@ -76,11 +76,11 @@ async def download(taskData: PTTaskMessageAllData):
 
     return plaintext
 
-async def upload(taskData: PTTaskMessageAllData, uuid: str, path: str):
+async def upload(taskData: PTTaskMessageAllData, agent_file_uuid: str, path: str):
     interact, isBeacon = await create_sliver_interact(taskData)
 
     filestuff = await SendMythicRPCFileGetContent(MythicRPCFileGetContentMessage(
-        AgentFileId=uuid
+        AgentFileId=agent_file_uuid
     ))
 
     upload_results = await interact.upload(

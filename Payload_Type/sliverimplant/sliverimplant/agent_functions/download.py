@@ -10,7 +10,7 @@ class DownloadArguments(TaskArguments):
         super().__init__(command_line, **kwargs)
         self.args = [
             CommandParameter(
-                name="path",
+                name="full_path",
                 description="path to file",
                 type=ParameterType.String
             ),
@@ -29,6 +29,7 @@ class Download(CommandBase):
     author = "Spencer Adolph"
     argument_class = DownloadArguments
     attackmapping = []
+    supported_ui_features = ["file_browser:download"]
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
         # Command: download [remote src] <local dst>
@@ -53,11 +54,11 @@ class Download(CommandBase):
         # TODO:  -t, --timeout   int       command timeout in seconds (default: 60)
         # TODO:  -T, --type      string    force a specific loot type (file/cred) if looting
 
-        plaintext = await SliverAPI.download(taskData)
+        plaintext = await SliverAPI.download(taskData, taskData.args.get_arg('full_path'))
 
         results = await SendMythicRPCFileCreate(MythicRPCFileCreateMessage(
             TaskID=taskData.Task.ID,
-            RemotePathOnTarget=taskData.args.get_arg('path'),
+            RemotePathOnTarget=taskData.args.get_arg('full_path'),
             FileContents=plaintext,
             IsScreenshot=False,
             IsDownloadFromAgent=True

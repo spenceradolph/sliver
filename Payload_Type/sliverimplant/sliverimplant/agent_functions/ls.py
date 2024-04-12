@@ -32,7 +32,7 @@ class Ls(CommandBase):
     author = "Spencer Adolph"
     argument_class = LsArguments
     attackmapping = []
-    # supported_ui_features = ["file_browser:list"]
+    supported_ui_features = ["file_browser:list"]
 
     async def create_go_tasking(self, taskData: MythicCommandBase.PTTaskMessageAllData) -> MythicCommandBase.PTTaskCreateTaskingMessageResponse:
         # Command: ls <remote path>
@@ -74,40 +74,41 @@ class Ls(CommandBase):
         # timezone: "CDT"
         # timezoneOffset: -18000
 
-        # files = []
-        # if ls_results.Files != []:
-        #     for file in ls_results.Files:
-        #         files.append(MythicRPCFileBrowserDataChildren(
-        #                 Name=file.Name,
-        #                 IsFile=not file.IsDir,
-        #                 Permissions={},
-        #                 ModifyTime=file.ModTime,
-        #                 Size=file.Size
-        #             )
-        #         )
+        files = []
+        if ls_results.Files != []:
+            for file in ls_results.Files:
+                files.append(MythicRPCFileBrowserDataChildren(
+                        Name=file.Name,
+                        IsFile=not file.IsDir,
+                        Permissions={"perms": file.Mode},
+                        ModifyTime=file.ModTime,
+                        Size=file.Size
+                    )
+                )
 
-        # Name = ls_results.Path.split('/')[-1]
-        # Parent = "/".join(ls_results.Path.split('/')[:-1])
+        Name = ls_results.Path.split('/')[-1]
+        Parent = "/".join(ls_results.Path.split('/')[:-1])
 
         # # edge case (probably check length of parent path list instead)
-        # if Parent == '/':
-        #     Parent = ''
+        if Parent == '':
+            Parent = '/'
 
         # # TODO: refactor all of this for edge cases
-        # if path_to_ls == '/':
-        #     Name = '/'
-        #     Parent = ''
+        if path_to_ls == '/':
+            Name = '/'
+            Parent = ''
 
-        # await SendMythicRPCFileBrowserCreate(MythicRPCFileBrowserCreateMessage(
-        #     TaskID=taskData.Task.ID,
-        #     FileBrowser=MythicRPCFileBrowserData(
-        #         # Host='ubuntu',
-        #         Name="/",
-        #         ParentPath="",
-        #         IsFile=False,
-        #         Files=[]
-        #     ),
-        # ))
+        # TODO: currently unable to directly list a file, only directories
+
+        await SendMythicRPCFileBrowserCreate(MythicRPCFileBrowserCreateMessage(
+            TaskID=taskData.Task.ID,
+            FileBrowser=MythicRPCFileBrowserData(
+                Name=Name,
+                ParentPath=Parent,
+                IsFile=False,
+                Files=files
+            ),
+        ))
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,
