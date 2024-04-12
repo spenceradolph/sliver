@@ -56,12 +56,31 @@ class Download(CommandBase):
 
         plaintext = await SliverAPI.download(taskData, taskData.args.get_arg('full_path'))
 
+        # TODO: update the file browser and indicate it was downloaded?
+        # if (taskData.Task.TaskingLocation == 'file_browser'):
+        #     params = json.loads(taskData.Task.Params)
+        #     await SendMythicRPCFileBrowserCreate(MythicRPCFileBrowserCreateMessage(
+        #         TaskID=taskData.Task.ID,
+        #         FileBrowser=MythicRPCFileBrowserData(
+        #             Name=params['file'],
+        #             ParentPath=params['path'],
+        #             IsFile=True,
+        #             Files=[],
+        #             Size=len(plaintext),
+        #             Success=True
+        #         )
+        #     ))
+            # await SendMythicRPCFileBrowserCreate
+            # await SendMythicRPCFileUpdate(MythicRPCFileUpdateMessage(
+
+            # ))
+
         results = await SendMythicRPCFileCreate(MythicRPCFileCreateMessage(
             TaskID=taskData.Task.ID,
             RemotePathOnTarget=taskData.args.get_arg('full_path'),
             FileContents=plaintext,
             IsScreenshot=False,
-            IsDownloadFromAgent=True
+            IsDownloadFromAgent=True,
         ))
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
