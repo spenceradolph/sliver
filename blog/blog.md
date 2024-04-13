@@ -263,7 +263,7 @@ And voila! After more tinkering, refactoring, and better understanding of how My
 
 ## Step 6 - Profit
 
-I've now met my end goal, with a proof of concept set of Mythic agents that can interact with Sliver. 
+I've now met my end goal, with a proof of concept set of Mythic agents that can interact with Sliver. Not only that, but its wonderfully hooked into Mythic's UI. `ps` creates a process browser tree, `ls` creates a file browser tree, etc...
 
 There's also a clear path for continuing to add and refine functionality to have exact parity with the sliver-client. Here's an example [commit](https://github.com/spenceradolph/sliver/commit/ec2f8fdfebfeb7d3a06d1393f677165cf81dca38) of adding the `ping` command.
 
