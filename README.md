@@ -27,11 +27,104 @@ A `sliverimplant` callback is instantiated when tasking a `use -id <sliver_impla
 - Sliver 3rd party integrations
 - Stretch Goal: Ability to run the sliver server within mythic
 
+<details>
+  <summary>Server Commands</summary>
+
+    - clear
+    - exit
+    - help
+    - monitor
+    - wg-config
+    - wg-portfwd
+    - wg-socks
+    - aliases
+    - armory
+    - background
+    - beacons✅
+    - builders
+    - canaries
+    - cursed
+    - dns
+    - env
+    - generate
+    - hosts
+    - http
+    - https
+    - implants✅
+    - jobs✅
+    - licenses
+    - loot
+    - mtls
+    - prelude-operator
+    - profiles✅
+    - reaction
+    - regenerate
+    - sessions✅
+    - settings
+    - stage-listener
+    - tasks
+    - update
+    - use✅
+    - version
+    - websites
+    - wg
+    - operators
+</details>
+
+<details>
+  <summary>Implant Commands</summary>
+
+    - cat✅
+    - cd✅
+    - chmod
+    - chown
+    - chtimes
+    - close
+    - download✅
+    - execute✅
+    - execute-shellcode
+    - extensions
+    - getgid
+    - getpid
+    - getuid
+    - ifconfig✅
+    - info
+    - interactive
+    - kill
+    - ls✅
+    - memfiles
+    - mkdir✅
+    - msf
+    - msf-inject
+    - mv
+    - netstat✅
+    - ping
+    - pivots
+    - portfwd
+    - procdump
+    - ps✅
+    - pwd✅
+    - reconfig
+    - rename
+    - rm✅
+    - rportfwd
+    - screenshot
+    - shell✅
+    - shikata-ga-nai
+    - sideload
+    - socks5
+    - ssh
+    - terminate
+    - upload✅
+    - whoami
+</details>
+
 ### Fixes / TODOs
 
-- make Dockerfile build faster / fix grpc error
-- parity with all commands in sliver
-- write a blog post about experience / video demo?
+- Faster Dockerfile build / fix grpc error
+- Blog post about experience / video demo
+- Correct Parameters on all commands
+
 
 ## How to install an agent in this format within Mythic
 
@@ -48,12 +141,9 @@ Now, you might be wondering _when_ should you or a user do this to properly add 
 
 ## Local Development Notes
 
-<!-- TODO: clean this up with better notes, starting with requirements and 'git clone' (all steps) -->
-
 - VSCode devcontainer
-
   - If using vscode, it will prompt to auto build and attach to the Docker file
-    - Warning: building the container takes a few minutes! (TODO: fix this)
+    - Warning: building the container takes a few minutes!
   - Auto adds the suggested extensions / settings
   - Use the debugger for breakpoints! (and easy restart of the main.py process)
 
@@ -71,20 +161,12 @@ cd ./Payload_Type/sliverapi
 cp rabbitmq_config.json.example rabbitmq_config.json
 ```
 
-<!-- TODO: describe example setup with ubuntu vm running both mythic and sliver -->
+I am running both Mythic and Sliver in the same Ubuntu 22 VM, but running the Agent container externally in a docker container.
 
-Once inside the container and rabbitmq set
+Once inside the container and rabbitmq set, this will run the agent side and update Mythic.
 
 ```bash
 # or instead of running manually, hit the debug play button in vscode!
 cd ./Payload_Type/sliverapi/
 python3 main.py
 ```
-
-### Current Work TODOs
-
-- refactor sliver api into 1 place?
-  - rename SliverRequests folder / libraries
-- exit command (for the callbacks?)
-  - sliver can close the sessions / exit interactive?
-  - what is gained by exiting the callback but not on the sliver side
