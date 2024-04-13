@@ -116,7 +116,7 @@ A `sliverimplant` callback is instantiated when tasking a `use -id <sliver_impla
     - ssh
     - terminate
     - upload✅
-    - whoami
+    - whoami✅
 </details>
 
 ### Fixes / TODOs

@@ -141,6 +141,13 @@ async def screenshot(taskData: PTTaskMessageAllData):
 
     return screenshot_result.Data
 
+async def whoami(taskData: PTTaskMessageAllData):
+    interact, isBeacon = await create_sliver_interact(taskData)
+
+    # TODO: this is special for windows
+
+    return f"Logon ID: {interact.username}"
+
 async def getgid(taskData: PTTaskMessageAllData):
     interact, isBeacon = await create_sliver_interact(taskData)
     return f"{interact.gid}"
