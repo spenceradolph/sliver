@@ -1,14 +1,15 @@
-# Alternative Blog (walkthrough style)
+# Alternative Blog
+
+- blog in the style of 'lets do this together' (and don't mention mistakes / struggles)
 
 - here's an idea, lets see if its possible
-    - briefly describe what Sliver and Mythic are
 
-## Defining our goals
+## Step 1 - Defining our goals
 
 - "In Mythic, I want the ability to control the Sliver server, start listeners, build implants, etc..."
 - "In Mythic, I want a sliver implant callback, I want to issue an 'ls' task, see the results, and show them in the file browser"
 
-## Step 1 - Research and Planning
+## Step 2 - Research and Planning
 
 ### Read the Docs
 
@@ -36,7 +37,7 @@
     - make our own go client (I don't know go, but sliver's cli client is written in go, and Mythic supports go)
     - sliver-py (I know python, its updated, and Mythic supports it!)✅
 
-## Step 2 - Initial Testing
+## Step 3 - Initial Testing
 
 - lets play around with sliver-py, don't worry about Mythic right now
     - ubuntu 22 VM with sliver installed
@@ -54,7 +55,7 @@
         - run generate implant
         - learning how to talk to mythic, save implant file to Mythic DB ✅
 
-## Step 3 - Implementing
+## Step 4 - Implementing
 
 - what is a good developer setup for Mythic?
     - devcontainer + rabbitmq
@@ -82,7 +83,7 @@
     - learn more about gRPC, async python
     - request more features from Mythic
 
-## Step 4 - Profit
+## Step 5 - Profit
 
 - we've reached our end goal! (and even added bonus features)
 - clear path for adding more functionality

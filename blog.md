@@ -1,5 +1,7 @@
 # Blog (Outline)
 
+- blog in the style of 'this is the story from my perspective'
+
 - summary sentence / announce release of agents?
 - What will this post be about
     - experience in research and development
