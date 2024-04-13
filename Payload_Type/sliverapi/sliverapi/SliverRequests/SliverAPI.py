@@ -173,7 +173,7 @@ async def use(taskData: PTTaskMessageAllData, sliver_id: int):
                 build_parameters=[],
                 c2_profiles=[],
                 # TODO: figure out if possible to not specify these manually
-                commands=['ifconfig', 'download', 'upload', 'ls', 'ps', 'netstat', 'getgid', 'getuid', 'getpid', 'cat', 'cd', 'pwd', 'info', 'execute', 'mkdir', 'shell', 'terminate', 'rm']
+                commands=['ifconfig', 'download', 'upload', 'ls', 'ps', 'ping', 'netstat', 'getgid', 'getuid', 'getpid', 'cat', 'cd', 'pwd', 'info', 'execute', 'mkdir', 'shell', 'terminate', 'rm']
             ),
         )
         await SendMythicRPCPayloadCreateFromScratch(new_payload)

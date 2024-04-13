@@ -84,9 +84,9 @@ A `sliverimplant` callback is instantiated when tasking a `use -id <sliver_impla
     - execute✅
     - execute-shellcode
     - extensions
-    - getgid
-    - getpid
-    - getuid
+    - getgid✅
+    - getpid✅
+    - getuid✅
     - ifconfig✅
     - info✅
     - interactive
@@ -98,7 +98,7 @@ A `sliverimplant` callback is instantiated when tasking a `use -id <sliver_impla
     - msf-inject
     - mv
     - netstat✅
-    - ping
+    - ping✅
     - pivots
     - portfwd
     - procdump
