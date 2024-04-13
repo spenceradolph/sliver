@@ -172,7 +172,8 @@ async def use(taskData: PTTaskMessageAllData, sliver_id: int):
                 description=f"sliver {'beaconing' if isBeacon else 'interactive'} implant for {sliver_id}",
                 build_parameters=[],
                 c2_profiles=[],
-                commands=['ifconfig', 'download', 'upload', 'ls', 'ps', 'netstat', 'cat', 'cd', 'pwd', 'execute', 'mkdir', 'shell', 'terminate', 'rm']
+                # TODO: figure out if possible to not specify these manually
+                commands=['ifconfig', 'download', 'upload', 'ls', 'ps', 'netstat', 'cat', 'cd', 'pwd', 'info', 'execute', 'mkdir', 'shell', 'terminate', 'rm']
             ),
         )
         await SendMythicRPCPayloadCreateFromScratch(new_payload)

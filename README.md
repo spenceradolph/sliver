@@ -88,7 +88,7 @@ A `sliverimplant` callback is instantiated when tasking a `use -id <sliver_impla
     - getpid
     - getuid
     - ifconfig✅
-    - info
+    - info✅
     - interactive
     - kill
     - ls✅
