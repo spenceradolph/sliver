@@ -105,7 +105,29 @@ Knowing this, I opted to use a [VSCode Devcontainer](https://code.visualstudio.c
 
 ### sliverapi agent
 
-I closely followed the tutorial for a basic agent, and cross referencing the bloodhound agent for any weirdness in being a 3rd party agent. Wasn't long before I could build my agent, which triggered a callback, which could then be tasked. 
+I closely followed the tutorial for a basic agent, and cross referenced the bloodhound agent for any weirdness in being a 3rd party agent. The UI flow was pretty simple.
+
+Select 'sliver' when creating a payload, upload the operator config as a parameter, and then a callback appears after building. 
+
+It also wasn't too bad adding commands, just copy/paste from another agent and change the code to interact with sliver.
+
+SUCCESS!!!!
+
+- image of tasking 
+
+I could now issue tasks like 'sessions', and had a clear way to implement the other tasks. Some commands required arguments, but again, easy enough to copy/paste from other agents. 
+
+Not only that, but my setup made it easy to set breakpoints and inspect what data was actually being passed from Mythic/Sliver to my code.
+
+At this point, I could start an mtls listener, list sessions, and few other basic queries. Now I was ready to 'use' an implant.
+
+### sliverimplant agent
+
+
+
+
+
+
 
 
 
