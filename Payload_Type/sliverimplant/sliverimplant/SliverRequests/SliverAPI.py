@@ -121,6 +121,17 @@ async def info(taskData: PTTaskMessageAllData):
 
     return finalResponse
 
+async def getgid(taskData: PTTaskMessageAllData):
+    interact, isBeacon = await create_sliver_interact(taskData)
+    return f"{interact.gid}"
+
+async def getpid(taskData: PTTaskMessageAllData):
+    interact, isBeacon = await create_sliver_interact(taskData)
+    return f"{interact.pid}"
+
+async def getuid(taskData: PTTaskMessageAllData):
+    interact, isBeacon = await create_sliver_interact(taskData)
+    return f"{interact.uid}"
 
 async def download(taskData: PTTaskMessageAllData, full_path: str):
     interact, isBeacon = await create_sliver_interact(taskData)
