@@ -10,7 +10,7 @@ class CatArguments(TaskArguments):
         super().__init__(command_line, **kwargs)
         self.args = [
             CommandParameter(
-                name="path",
+                name="full_path",
                 description="path to file",
                 type=ParameterType.String
             ),
@@ -55,7 +55,7 @@ class Cat(CommandBase):
 
         # just download and don't create a file, show the output to user
         # sliver py doesn't have a direct 'cat' method to use
-        plaintext = await SliverAPI.download(taskData)
+        plaintext = await SliverAPI.download(taskData, taskData.args.get_arg('full_path'))
 
         await SendMythicRPCResponseCreate(MythicRPCResponseCreateMessage(
             TaskID=taskData.Task.ID,

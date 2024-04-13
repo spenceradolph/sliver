@@ -26,6 +26,7 @@ A `sliverimplant` callback is instantiated when tasking a `use -id <sliver_impla
 - Build implants through Mythic ('generate' + UI)
 - Sliver 3rd party integrations
 - Stretch Goal: Ability to run the sliver server within mythic
+- Stretch Goal: V2 everything in go💙 (match sliver official client code)
 
 <details>
   <summary>Server Commands</summary>
@@ -54,7 +55,7 @@ A `sliverimplant` callback is instantiated when tasking a `use -id <sliver_impla
     - jobs✅
     - licenses
     - loot
-    - mtls
+    - mtls✅
     - prelude-operator
     - profiles✅
     - reaction
@@ -98,22 +99,23 @@ A `sliverimplant` callback is instantiated when tasking a `use -id <sliver_impla
     - msf-inject
     - mv
     - netstat✅
-    - ping✅
+    - ping✅ (session only)
     - pivots
     - portfwd
     - procdump
     - ps✅
     - pwd✅
-    - reconfig
+    - reconfig (beacon only)
     - rename
     - rm✅
     - rportfwd
     - screenshot✅
-    - shell✅
+    - shell✅ (session only)
     - shikata-ga-nai
     - sideload
     - socks5
     - ssh
+    - tasks (beacon only)
     - terminate
     - upload✅
     - whoami✅
