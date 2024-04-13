@@ -130,6 +130,17 @@ async def ping(taskData: PTTaskMessageAllData):
 
     return f"{ping_result}"
 
+async def screenshot(taskData: PTTaskMessageAllData):
+    interact, isBeacon = await create_sliver_interact(taskData)
+    screenshot_result = await interact.screenshot()
+
+    if (isBeacon):
+        screenshot_result = await screenshot_result
+
+    # decompressed = gzip.decompress(screenshot_result.Data)
+
+    return screenshot_result.Data
+
 async def getgid(taskData: PTTaskMessageAllData):
     interact, isBeacon = await create_sliver_interact(taskData)
     return f"{interact.gid}"

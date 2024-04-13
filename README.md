@@ -14,13 +14,13 @@ A `sliverimplant` callback is instantiated when tasking a `use -id <sliver_impla
 - Mythic Supported UI
   - process browser ✅
     - task kill ✅
-  - file browser 🚧 (buggy)
+  - file browser 🐞 (buggy)
     - file download ✅
     - file upload ✅
     - file remove ✅
-  - screenshots (is_screenshot)
-  - artifacts?
-  - Interactive Tasking (shell) 🚧 (buggy)
+  - screenshots 🐞
+  - artifacts
+  - Interactive Tasking (shell) 🚧🐞 (buggy)
 - Beacon checkin status
 - Documentation-payload
 - Build implants through Mythic ('generate' + UI)
@@ -108,7 +108,7 @@ A `sliverimplant` callback is instantiated when tasking a `use -id <sliver_impla
     - rename
     - rm✅
     - rportfwd
-    - screenshot
+    - screenshot✅
     - shell✅
     - shikata-ga-nai
     - sideload
