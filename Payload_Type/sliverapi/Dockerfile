@@ -13,4 +13,7 @@ RUN cd grpc && pip uninstall -y protobuf
 RUN cd grpc && pip install protobuf==3.20.*
 RUN cd grpc && GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=True GRPC_PYTHON_BUILD_WITH_CYTHON=1 pip install .
 
+RUN pip install mythic_container==v0.4.18
+RUN pip install tabulate
+
 CMD ["python3", "main.py"]

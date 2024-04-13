@@ -9,6 +9,20 @@ The `sliverapi` payload doesn't build anything, but instead generates a "callbac
 
 A `sliverimplant` callback is instantiated when tasking a `use -id <sliver_implant_id>` from within the sliverapi callback. 
 
+Checkout this [blog](./blog/blog.md) about my experience creating them.
+
+### Quick Start
+
+This assumes that sliver is installed and running.
+
+```sh
+# Generate Sliver Operator Config
+sudo /root/sliver-server operator --name mythic --lhost <ip> --save mythic.cfg && sudo chown $USER:$USER mythic.cfg
+# Install Agents into Mythic
+cd /path/to/Mythic
+sudo ./mythic-cli install github https://github.com/spenceradolph/sliver
+```
+
 ## Future Plans / Ideas
 
 - Mythic Supported UI
@@ -126,7 +140,6 @@ A `sliverimplant` callback is instantiated when tasking a `use -id <sliver_impla
 - Faster Dockerfile build / fix grpc error
 - Blog post about experience / video demo
 - Correct Parameters on all commands
-
 
 ## How to install an agent in this format within Mythic
 
