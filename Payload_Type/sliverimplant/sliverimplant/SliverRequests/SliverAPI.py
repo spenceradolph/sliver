@@ -11,15 +11,19 @@ from mythic_container.LoggingBase import *
 from mythic_container.MythicGoRPC import *
 
 # TODO: make this better, if using identify all fields that will be used / handle emptying when exiting
-global_dict = {}
+global_dict = {
+    'sliver_clients': {}
+}
 
 async def create_sliver_interact(taskData: PTTaskMessageAllData):
-    # TODO: should this configfile somehow be cached so we aren't always using rpc to pull it?
-    # Should this be a class who's attributes then are updated with the config?
+    # check to see if its cached
+    if (f"{taskData.Callback.ID}" in global_dict['sliver_clients'].keys()):
+        return global_dict['sliver_clients'][f"{taskData.Callback.ID}"]['interact'], global_dict['sliver_clients'][f"{taskData.Callback.ID}"]['isBeacon']
 
     extraInfoObj = json.loads(taskData.Callback.ExtraInfo)
     configfile = extraInfoObj['slivercfg_fileid']
 
+    # otherwise get it
     filecontent = await SendMythicRPCFileGetContent(MythicRPCFileGetContentMessage(
         AgentFileId=configfile
     ))
@@ -34,7 +38,14 @@ async def create_sliver_interact(taskData: PTTaskMessageAllData):
         interact = await client.interact_beacon(taskData.Payload.UUID)
     else:
         interact = await client.interact_session(taskData.Payload.UUID)
-    
+
+    # cache it for later
+    # TODO: memory leak if this never gets removed? (why useful to implement 'exit' command)
+    global_dict['sliver_clients'][f"{taskData.Callback.ID}"] = {
+        'interact': interact,
+        'isBeacon': isBeacon
+    }
+
     return interact, isBeacon
 
 async def generate():

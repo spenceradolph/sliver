@@ -1,35 +1,37 @@
 # sliver
 
-This is a set of Mythic agents for interacting with [Sliver](https://sliver.sh/) C2 framework.
+This is a set of [Mythic](https://docs.mythic-c2.net/) agents for interacting with [Sliver](https://sliver.sh/) C2 framework.
 
 - `sliverapi`: for interacting with the sliver server (ie: start listeners, list sessions...etc)
 - `sliverimplant`: for interacting with a sliver implant (ie: ps, netstat...etc)
 
-The SliverAPI payload doesn't build anything, but instead generates a "callback" within Mythic that allows you to interact with Sliver's API. This requires you to generate an [operator configuration file](https://sliver.sh/docs?name=Multi-player+Mode). This config file is the only build parameter, and once built, a callback will immediately appear.
+The `sliverapi` payload doesn't build anything, but instead generates a "callback" within Mythic that allows you to interact with Sliver's API. This requires you to generate an [operator configuration file](https://sliver.sh/docs?name=Multi-player+Mode). This config file is the only build parameter, and once built, a callback will immediately appear and you can start tasking like normal.
 
-A SliverImplant callback is instantiated when tasking a `use -id <sliver_implant_id>` from within the SliverApi callback. 
+A `sliverimplant` callback is instantiated when tasking a `use -id <sliver_implant_id>` from within the sliverapi callback. 
 
 ## Future Plans / Ideas
 
-- Better integration with all Mythic features
-  - especially UI improvements with results / data
-  - interactive commands (sorta working)
-  - documentation-payload
-- Build sliver implant payloads through Mythic
-- sliver 3rd party integrations?
-- Sync to just create all callbacks / auto create+track them
-  - since sliver can still be used normally without mythic
-- Ability to run the sliver server within mythic?
+- Mythic Supported UI
+  - process browser ✅
+    - task kill ✅
+  - file browser 🚧 (buggy)
+    - file download ✅
+    - file upload ✅
+    - file remove ✅
+  - screenshots (is_screenshot)
+  - artifacts?
+  - Interactive Tasking (shell) 🚧 (buggy)
+- Beacon checkin status
+- Documentation-payload
+- Build implants through Mythic ('generate' + UI)
+- Sliver 3rd party integrations
+- Stretch Goal: Ability to run the sliver server within mythic
 
 ### Fixes / TODOs
 
 - make Dockerfile build faster / fix grpc error
 - parity with all commands in sliver
 - write a blog post about experience / video demo?
-
-### Potential Bugs
-
-- shell command spawns an asyncio task for reading from the tunnel, but does this ever exit?
 
 ## How to install an agent in this format within Mythic
 
