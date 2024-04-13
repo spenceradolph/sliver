@@ -39,6 +39,8 @@
     - sliver can have any gRPC supported language, but offers a python and typescript pre-built client
     - mythic can be written in go or python
 
+Sliver at one point appears to have started a [gui](https://github.com/BishopFox/sliver-gui), but it appears to have been discontinued. 
+
 ### Initial Testing
 
 - Kali Setup (but then Ubuntu) (confusion with Dockerfile)
