@@ -18,9 +18,16 @@ This assumes that sliver is installed and running.
 ```sh
 # Generate Sliver Operator Config
 sudo /root/sliver-server operator --name mythic --lhost <ip> --save mythic.cfg && sudo chown $USER:$USER mythic.cfg
+
 # Install Agents into Mythic
 cd /path/to/Mythic
+# Ensure latest updates are there
+git pull && sudo make && sudo ./mythic-cli start
+# WARNING: This currently takes several minutes due to a grpc bug
 sudo ./mythic-cli install github https://github.com/spenceradolph/sliver
+
+# Browse to Mythic and Generate a Payload, select 'sliver' as the OS
+# Upload the mythic.cfg file, continue through prompts and generate
 ```
 
 ## Future Plans / Ideas
@@ -130,16 +137,10 @@ sudo ./mythic-cli install github https://github.com/spenceradolph/sliver
     - socks5
     - ssh
     - tasks (beacon only)
-    - terminate
+    - terminate✅
     - upload✅
     - whoami✅
 </details>
-
-### Fixes / TODOs
-
-- Faster Dockerfile build / fix grpc error
-- Blog post about experience / video demo
-- Correct Parameters on all commands
 
 ## How to install an agent in this format within Mythic
 
