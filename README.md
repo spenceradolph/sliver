@@ -186,3 +186,5 @@ Once inside the container and rabbitmq set, this will run the agent side and upd
 cd ./Payload_Type/sliverapi/
 python3 main.py
 ```
+
+Another note: the sliverimplant Dockerfile is built from the sliverapi .docker
